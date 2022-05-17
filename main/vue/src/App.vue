@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import TestService from "@/test-unit";
+import test from "./core/test/test-unit";
 
 export default {
   name: 'App',
@@ -15,17 +15,8 @@ export default {
     };
   },
   mounted() {
-    const service = new TestService();
-    service.hello("world").then(res => {
-      this.history.push(res.data);
-    });
-
-    service.postMessage("hello world", "client").then(res => {
-      this.history.push(res.data);
-    });
-
-    service.postJSON("hello world").then(res => {
-      this.history.push(JSON.stringify(res.data));
+    test().then(results => {
+      this.history = results;
     });
   }
 }
