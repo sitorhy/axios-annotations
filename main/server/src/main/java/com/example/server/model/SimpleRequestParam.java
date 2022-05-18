@@ -2,7 +2,7 @@ package com.example.server.model;
 
 import java.util.Date;
 
-public class JSONParam {
+public class SimpleRequestParam {
     public String message;
     public Date date;
 

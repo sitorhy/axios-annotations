@@ -1,14 +1,14 @@
-package com.example.server;
+package com.example.server.controller;
 
-import com.example.server.model.JSONParam;
-import com.example.server.model.Result;
+import com.example.server.model.SimpleRequestParam;
+import com.example.server.model.SimpleResponseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/test")
-public class TestController {
+public class PublicController {
     @GetMapping("/hello")
     public String hello(@RequestParam String word) {
         log.info("word = " + word);
@@ -22,10 +22,10 @@ public class TestController {
     }
 
     @PostMapping("/json")
-    public Result postJSON(@RequestBody JSONParam param){
-        Result result = new Result();
-        result.setSuccess(true);
-        result.setMessage("received message \"" + param.getMessage() + "\" , at " + param.getDate());
-        return result;
+    public SimpleResponseResult postJSON(@RequestBody SimpleRequestParam param){
+        SimpleResponseResult simpleResponseResult = new SimpleResponseResult();
+        simpleResponseResult.setSuccess(true);
+        simpleResponseResult.setMessage("received message \"" + param.getMessage() + "\" , at " + param.getDate());
+        return simpleResponseResult;
     }
 }

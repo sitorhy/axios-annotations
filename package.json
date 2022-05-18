@@ -1,0 +1,29 @@
+{
+  "name": "axios-annotations",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sitorhy/axios-annotations.git"
+  },
+  "keywords": [
+    "axios"
+  ],
+  "author": "sitorhy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sitorhy/axios-annotations/issues"
+  },
+  "homepage": "https://github.com/sitorhy/axios-annotations#readme",
+  "devDependencies": {
+    "@babel/core": "^7.17.12",
+    "@babel/preset-env": "^7.17.12",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-uglify": "^3.0.2"
+  }
+}

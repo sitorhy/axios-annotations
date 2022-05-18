@@ -1,6 +1,6 @@
 package com.example.server.model;
 
-public class Result {
+public class SimpleResponseResult {
     private String message;
     private boolean success;
 
