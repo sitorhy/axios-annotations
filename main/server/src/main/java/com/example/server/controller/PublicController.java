@@ -5,6 +5,8 @@ import com.example.server.model.SimpleResponseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+
 @Slf4j
 @RestController
 @RequestMapping("/test")
@@ -23,9 +25,10 @@ public class PublicController {
 
     @PostMapping("/json")
     public SimpleResponseResult postJSON(@RequestBody SimpleRequestParam param){
+        log.info("param = " + param.message);
         SimpleResponseResult simpleResponseResult = new SimpleResponseResult();
         simpleResponseResult.setSuccess(true);
-        simpleResponseResult.setMessage("received message \"" + param.getMessage() + "\" , at " + param.getDate());
+        simpleResponseResult.setMessage("received message \"" + param.getMessage() + "\" , at " + new Date());
         return simpleResponseResult;
     }
 }

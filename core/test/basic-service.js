@@ -1,4 +1,4 @@
-import config from "./config";
+import config from "./basic-config";
 
 import {Service} from "../core/service";
 import RequestMapping from "../decorator/request-mapping";
@@ -8,8 +8,7 @@ import RequestBody from "../decorator/request-body";
 import RequestHeader from "../decorator/request-header";
 
 @RequestConfig(config)
-@RequestMapping("/test")
-export default class TestService extends Service {
+export default class BasicTestService extends Service {
 
     @RequestMapping("/hello", "GET")
     @RequestParam("word", true)
@@ -31,6 +30,7 @@ export default class TestService extends Service {
     }
 
     @RequestMapping("/json", "POST")
+    @RequestHeader("Content-Type", "application/json")
     @RequestBody("body")
     postJSON(message) {
         return {

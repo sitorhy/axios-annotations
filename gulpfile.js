@@ -9,8 +9,7 @@ const LIB_HOME = path.join("core");
 function copyFile(location, targetSubDir) {
     const dir = path.dirname(location);
     const dest = [
-        `main/react/src/${targetSubDir}/`.replace(/\\/g, "/"),
-        `main/vue/src/${targetSubDir}/`.replace(/\\/g, "/")
+        `main/client/src/${targetSubDir}/`.replace(/\\/g, "/")
     ];
     const index = dir.indexOf(targetSubDir);
     if (index >= 0) {
@@ -26,8 +25,7 @@ function copyFile(location, targetSubDir) {
 
 function deleteFile(location, targetSubDir) {
     const dest = [
-        `main/react/src/${targetSubDir}/`.replace(/\\/g, "/"),
-        `main/vue/src/${targetSubDir}/`.replace(/\\/g, "/")
+        `main/client/src/${targetSubDir}/`.replace(/\\/g, "/")
     ];
     dest.forEach(i => {
         fs.unlink(i, function () {
@@ -39,11 +37,7 @@ function deleteFile(location, targetSubDir) {
 gulp.task("deploy", async () => {
     gulp.src(LIB_HOME + "/**/*.js", {
         base: LIB_HOME
-    }).pipe(gulp.dest(`main/vue/src/core/`));
-
-    gulp.src(LIB_HOME + "/**/*.js", {
-        base: LIB_HOME
-    }).pipe(gulp.dest(`main/react/src/core/`));
+    }).pipe(gulp.dest(`main/client/src/core/`));
 });
 
 gulp.task("dev", gulp.series(["deploy"], async () => {

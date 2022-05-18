@@ -1,6 +1,6 @@
-import "./url-search-params-polyfill";
 import {isNullOrEmpty, normalizePath} from "./common";
 import config from "./config";
+import qs from "./qs";
 
 export class Service {
     _path = "";
@@ -106,30 +106,30 @@ export class Service {
     querystring(id, data) {
         const rules = this._params && this._params[id] ? this._params[id] : null;
         if (rules) {
-            const params = new URLSearchParams(data);
+            const params = {...data};
             for (const key in rules) {
-                const value = params.get(key);
+                const value = params[key];
                 const rule = rules[key];
                 if (!rule.body) {
                     if (rule.required === false) {
                         if (isNullOrEmpty(value)) {
-                            if (params.has(key)) {
-                                params.delete(key);
+                            if (Object.hasOwnProperty.call(params, key)) {
+                                delete params[key];
                             }
                         }
                     } else if (rule.required === true) {
                         if (isNullOrEmpty(value)) {
-                            if (!params.has(key)) {
-                                params.append(key, "");
+                            if (!Object.hasOwnProperty.call(params, key)) {
+                                params[key] = "";
                             }
                         }
                     }
                 } else {
-                    params.delete(key);
+                    delete params[key];
                 }
             }
 
-            return params.toString();
+            return qs.stringify(params);
         }
 
         return "";
