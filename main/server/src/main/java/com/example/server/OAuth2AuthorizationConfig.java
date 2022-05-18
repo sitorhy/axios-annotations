@@ -5,10 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
 @Configuration
@@ -64,26 +66,45 @@ public class OAuth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
         // grant_type=password的情况下，请求access token时，需要在HTTP请求里加上client_id和client_secret两个参数
 
         // oauth2官方只有4种授权方式，不过spring security oauth2把refresh token也归为authorizedGrantTypes的一种
+
+        // Spring Security 5.x 更改了密码格式，需要指明密码加密方式，明文需要指定前缀{noop}
+        // String finalSecret = "{bcrypt}" + new BCryptPasswordEncoder().encode("123456");
+
         clients.inMemory()
                 .withClient("client_1")
                 .resourceIds(RESOURCE_ID)
                 .authorizedGrantTypes("client_credentials", "refresh_token", "password")
-                .secret("123456")
+               // .secret(finalSecret)
+                .secret("{noop}123456")
                 .scopes("all")
-                .authorities("USER");
+                .authorities("USER")
+                .accessTokenValiditySeconds(10).refreshTokenValiditySeconds(60);
 
         // 测试
         // http://localhost:8888/oauth/token?grant_type=client_credentials&scope=all&client_id=client_1&client_secret=123456
 
         // http://localhost:8888/oauth/token?grant_type=password&scope=all&username=admin&password=123456&client_id=client_1&client_secret=123456
+        // 刷新令牌
+        // http://localhost:8888/oauth/token?refresh_token=XXXX&grant_type=refresh_token&scope=all&client_id=client_1&client_secret=123456
     }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints
-             //   .tokenStore(new InMemoryTokenStore()) // InMemoryTokenStore是OAuth2默认实现
+                .tokenStore(new InMemoryTokenStore()) // InMemoryTokenStore是OAuth2默认实现
                 .authenticationManager(authenticationManager)
                 .userDetailsService(userDetailsService)
                 .allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
+    }
+
+    /**
+     * oauth/token
+     * 这个如果配置支持allowFormAuthenticationForClients的，且url中有client_id和client_secret的会走ClientCredentialsTokenEndpointFilter来保护
+     * 如果没有支持allowFormAuthenticationForClients或者有支持但是url中没有client_id和client_secret的，走basic认证保护
+     */
+    @Override
+    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+        security.allowFormAuthenticationForClients().tokenKeyAccess("isAuthenticated()")
+                .checkTokenAccess("permitAll()");
     }
 }

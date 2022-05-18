@@ -18,8 +18,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected UserDetailsService userDetailsService() {
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withUsername("user").password("123456").authorities("USER").build());
-        manager.createUser(User.withUsername("admin").password("123456").authorities("USER").build());
+        manager.createUser(User.withUsername("user").password("{noop}123456").authorities("USER").build());
+        manager.createUser(User.withUsername("admin").password("{noop}123456").authorities("USER").build());
         return manager;
     }
 
