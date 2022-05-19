@@ -21,7 +21,6 @@ export default function RequestMapping(path, method = null) {
                         headers[h] = value;
                     }
                 }
-                console.log(query)
                 return this.request(method, `${path}${query ? '?' + query : ''}`, body, {
                     headers
                 });

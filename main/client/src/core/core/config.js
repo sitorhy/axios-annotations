@@ -6,6 +6,7 @@ export class Config {
     _protocol = "http";
     _prefix = "";
     _axios = axios.create();
+    _plugins = [];
 
     get host() {
         return this._host;
@@ -53,6 +54,14 @@ export class Config {
 
     set axios(value) {
         this._axios = value;
+    }
+
+    get plugins() {
+        return this._plugins;
+    }
+
+    set plugins(value) {
+        this._plugins = value;
     }
 }
 

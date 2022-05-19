@@ -6,8 +6,8 @@ module.exports = merge(require("./webpack.config"), {
         host: "localhost",
         open: true,
         proxy: {
-            "/ajax": {
-                target: "http://www.w3school.com.cn",
+            "/api": {
+                target: "http://localhost:8888",
                 changeOrigin: true
             }
         }

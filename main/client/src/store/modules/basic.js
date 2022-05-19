@@ -1,7 +1,4 @@
-import config from "../../core/test/basic-config";
-
 export default function (state = {
-    baseURL: config.baseURL,
     result: {}
 }, action) {
     switch (action.type) {

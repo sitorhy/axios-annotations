@@ -1,6 +1,6 @@
 import {isNullOrEmpty, normalizePath} from "./common";
+import URLSearchParamsParser from "./parser";
 import config from "./config";
-import qs from "./qs";
 
 export class Service {
     _path = "";
@@ -25,6 +25,12 @@ export class Service {
             }
             if (this.__proto__._config) {
                 this._config = this.__proto__._config;
+            }
+        }
+
+        if (this.config && this.config.plugins && this.config.plugins.length) {
+            for (const plugin of this.config.plugins) {
+                plugin(this.config);
             }
         }
     }
@@ -106,30 +112,30 @@ export class Service {
     querystring(id, data) {
         const rules = this._params && this._params[id] ? this._params[id] : null;
         if (rules) {
-            const params = {...data};
+            const encoder = URLSearchParamsParser.decode(data);
             for (const key in rules) {
-                const value = params[key];
+                const value = URLSearchParamsParser.get(encoder, key);
                 const rule = rules[key];
                 if (!rule.body) {
                     if (rule.required === false) {
                         if (isNullOrEmpty(value)) {
-                            if (Object.hasOwnProperty.call(params, key)) {
-                                delete params[key];
+                            if (URLSearchParamsParser.has(encoder, key)) {
+                                URLSearchParamsParser.delete(encoder, key);
                             }
                         }
                     } else if (rule.required === true) {
                         if (isNullOrEmpty(value)) {
-                            if (!Object.hasOwnProperty.call(params, key)) {
-                                params[key] = "";
+                            if (!URLSearchParamsParser.has(encoder, key)) {
+                                URLSearchParamsParser.append(encoder, key, "");
                             }
                         }
                     }
                 } else {
-                    delete params[key];
+                    URLSearchParamsParser.delete(encoder, key);
                 }
             }
 
-            return qs.stringify(params);
+            return URLSearchParamsParser.encode(encoder);
         }
 
         return "";
