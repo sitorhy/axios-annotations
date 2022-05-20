@@ -66,7 +66,7 @@ function connectChannelItem(channel, channelName, item, dispatch) {
                 });
             }
         })
-    }, genRandom(1000, 10000));
+    }, genRandom(1000, 20000));
 }
 
 function connectChannel(arr, channel, channelName, dispatch) {

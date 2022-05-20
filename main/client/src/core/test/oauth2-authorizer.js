@@ -29,16 +29,18 @@ export default class OAuth2Authorizer extends Authorizer {
 
         if (window.confirm("refresh_token invalid.\r\nlogin again?")) {
             const res = await new OAuth2Service().token();
-            const nextSession = res.data;
-            await this.storageSession(nextSession);
+            if (res && res.data) {
+                const nextSession = res.data;
+                await this.storageSession(nextSession);
 
-            if (typeof this.sessionRefreshCallback === "function") {
-                this.sessionRefreshCallback(nextSession);
+                if (typeof this.sessionRefreshCallback === "function") {
+                    this.sessionRefreshCallback(nextSession);
+                }
+
+                console.log(nextSession)
+
+                return nextSession;
             }
-
-            console.log(nextSession)
-
-            return nextSession;
         }
 
         throw error;

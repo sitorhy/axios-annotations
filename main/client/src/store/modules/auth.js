@@ -1,8 +1,10 @@
 import {v4 as uuid} from "uuid";
 
+const CHANNEL_SIZE = 100;
+
 function initChannel() {
     const arr = [];
-    for (let i = 0; i < 20; ++i) {
+    for (let i = 0; i < CHANNEL_SIZE; ++i) {
         arr.push({
             id: uuid(),
             marker: "",
