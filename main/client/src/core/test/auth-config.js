@@ -1,5 +1,5 @@
 import {Config} from "../core/config";
-import AuthorizationPlugin from "../plugins/auth";
+import AuthorizationPlugin from "../plugins/auth/index";
 
 const config = new Config();
 

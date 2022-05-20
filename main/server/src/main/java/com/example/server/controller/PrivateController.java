@@ -4,7 +4,6 @@ import com.example.server.model.SimpleResponseResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 @RestController
 @RequestMapping("/auth")
