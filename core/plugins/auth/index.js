@@ -14,14 +14,30 @@ export default function AuthorizationPlugin(authorizer = new Authorizer()) {
                 if (!unauthorized) {
                     unauthorized = true;
                     const session = await authorizer.getSession();
+                    if (authorizer.sessionHistory.isDeprecated(session)) {
+                        // not need to validate invalid refresh_token
+                        try {
+                            await authorizer.onAuthorizedDenied(e);
+                        } catch (e5) {
+                            throw e;
+                        } finally {
+                            unauthorized = false;
+                            queue.clear();
+                        }
+                    }
                     if (!authorizer.checkSession(e.config, session)) {
                         try {
                             await authorizer.storageSession(await authorizer.refreshSession(session));
                         } catch (e2) {
+                            // invalid refresh_token
+                            authorizer.sessionHistory.deprecate(session);
                             try {
                                 await authorizer.onAuthorizedDenied(e2);
                             } catch (e3) {
-                                throw e3;
+                                throw e;
+                            } finally {
+                                unauthorized = false;
+                                queue.clear();
                             }
                         }
                     }
@@ -31,9 +47,13 @@ export default function AuthorizationPlugin(authorizer = new Authorizer()) {
                             queue.pop();
                         }
                     })();
-                    return await queue.resend(e.config);
+                    try {
+                        return await queue.resend(e);
+                    } catch (e4) {
+                        throw e4;
+                    }
                 } else {
-                    return await queue.push(e.config);
+                    return await queue.push(e);
                 }
             } else {
                 throw e;

@@ -12,33 +12,43 @@ export default class PendingQueue {
         this._authorizer = authorizer;
     }
 
-    async resend(request, retries = 3) {
+    async resend(error, retries = 3) {
         for (let i = 0; i < retries; ++i) {
             const session = await this._authorizer.getSession();
+            if (this._authorizer.sessionHistory.isDeprecated(session)) {
+                // without re-login again, residual invalid session
+                throw error;
+            }
             try {
-                this._authorizer.withAuthentication(request, session);
-                return await this._axios.request(request);
+                this._authorizer.withAuthentication(error.config, session);
+                return await this._axios.request(error.config);
             } catch (e) {
-                if (i >= retries) {
+                if (i >= retries - 1) {
                     throw e;
                 }
             }
         }
     }
 
-    push(request) {
+    push(error) {
         return new Promise((resolve, reject) => {
-            this._queue.push({request, resolve, reject});
+            this._queue.push({error, resolve, reject});
         });
     }
 
     async pop() {
-        const {request, resolve, reject} = this._queue.shift();
+        const {error, resolve, reject} = this._queue.shift();
         try {
-            resolve(await this.resend(request));
+            resolve(await this.resend(error));
         } catch (e) {
             reject(e);
         }
+    }
+
+    clear() {
+        this._queue.splice(0).forEach(({error, reject}) => {
+            reject(error);
+        });
     }
 
     get size() {

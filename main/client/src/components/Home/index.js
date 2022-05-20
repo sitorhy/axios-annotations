@@ -105,6 +105,10 @@ class Home extends React.Component {
         );
     }
 
+    reLoginChanged = (e) => {
+        authorizer.reLoginAuto = e.target.checked;
+    };
+
     testAuthOnce = () => {
         const {
             auth
@@ -163,11 +167,8 @@ class Home extends React.Component {
                     refresh_tokens: [session.refresh_token]
                 });
                 authorizer.storageSession(session).then(() => {
-                    new AuthTestService().channel1("111").then(res => {
-                        console.log(res.data)
-                    })
+                    this.testAuth();
                 });
-                this.testAuth();
             }).catch(e => {
                 console.log(e);
             });
@@ -250,6 +251,11 @@ class Home extends React.Component {
                     <div className="btn-group" role="group" aria-label="...">
                         <button type="button" className="btn btn-primary" onClick={this.testAuth}>并发测试</button>
                         <button type="button" className="btn btn-primary" onClick={this.testAuthOnce}>单步测试</button>
+                    </div>
+                    <div className="checkbox">
+                        <label>
+                            <input type="checkbox" onChange={this.reLoginChanged}/> refresh_token 过期自动登录
+                        </label>
                     </div>
                     <table className="table table-striped">
                         <thead>

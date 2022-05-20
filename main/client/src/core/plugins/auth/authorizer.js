@@ -1,34 +1,5 @@
 import SessionStorage from "./storage";
-
-export class SessionHistory {
-    static HistorySize = 10;
-
-    _history = new Array(SessionHistory.HistorySize);
-    _position = 0;
-    _size = 0;
-
-    get size() {
-        return this._size;
-    }
-
-    add(session) {
-        this._history[this._position % SessionHistory.HistorySize] = session;
-        this._position %= SessionHistory.HistorySize;
-        this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
-    }
-
-    check(request) {
-        const header = request.headers["Authorization"] || request.headers["authorization"];
-        const jwt = header ? (header.split(" ")[1] || "") : "";
-        return this._history.some(session => {
-            if (session) {
-                const {access_token, token} = session;
-                return (access_token || token) === jwt;
-            }
-            return false;
-        });
-    }
-}
+import SessionHistory from "./history";
 
 export default class Authorizer {
     _sessionKey = "$_SESSION";
@@ -78,15 +49,17 @@ export default class Authorizer {
 
     withAuthentication(request, session) {
         if (session) {
-            const {access_token, token} = session;
-            if (access_token || token) {
-                request.headers['Authorization'] = "Bearer " + (access_token || token);
+            const {access_token, accessToken, token} = session;
+            if (access_token || accessToken || token) {
+                request.headers['Authorization'] = "Bearer " + (access_token || accessToken || token);
             }
         }
     }
 
     checkSession(request, session) {
-        return !this.sessionHistory.check(request);
+        const header = request.headers["Authorization"] || request.headers["authorization"];
+        const jwt = header ? (header.split(" ")[1] || "") : "";
+        return !this.sessionHistory.check(jwt);
     }
 
     checkResponse(response) {

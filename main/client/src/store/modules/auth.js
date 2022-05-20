@@ -1,6 +1,6 @@
 import {v4 as uuid} from "uuid";
 
-const CHANNEL_SIZE = 100;
+const CHANNEL_SIZE = 5;
 
 function initChannel() {
     const arr = [];

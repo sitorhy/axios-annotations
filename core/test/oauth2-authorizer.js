@@ -2,7 +2,24 @@ import Authorizer from "../plugins/auth/authorizer";
 import OAuth2Service from "./oauth2-service";
 
 export default class OAuth2Authorizer extends Authorizer {
-    sessionRefreshCallback = null;
+    _sessionRefreshCallback = null;
+    _reLoginAuto = false;
+
+    get sessionRefreshCallback() {
+        return this._sessionRefreshCallback;
+    }
+
+    set sessionRefreshCallback(value) {
+        this._sessionRefreshCallback = value;
+    }
+
+    get reLoginAuto() {
+        return this._reLoginAuto;
+    }
+
+    set reLoginAuto(value) {
+        this._reLoginAuto = value;
+    }
 
     async refreshSession(session) {
         console.log('access_token invalid.');
@@ -12,7 +29,6 @@ export default class OAuth2Authorizer extends Authorizer {
         try {
             res = await oauthService.refreshToken(session)
         } catch (e) {
-            // refresh_token invalid.
             throw e;
         }
 
@@ -20,14 +36,17 @@ export default class OAuth2Authorizer extends Authorizer {
         if (typeof this.sessionRefreshCallback === "function") {
             this.sessionRefreshCallback(nextSession);
         }
+
         console.log('access_token refreshed.');
+        console.log(nextSession);
+
         return nextSession;
     }
 
     async onAuthorizedDenied(error) {
         console.log('refresh_token invalid.');
 
-        if (window.confirm("refresh_token invalid.\r\nlogin again?")) {
+        if (this.reLoginAuto) {
             const res = await new OAuth2Service().token();
             if (res && res.data) {
                 const nextSession = res.data;
@@ -37,7 +56,8 @@ export default class OAuth2Authorizer extends Authorizer {
                     this.sessionRefreshCallback(nextSession);
                 }
 
-                console.log(nextSession)
+                console.log('refresh_token refreshed.');
+                console.log(nextSession);
 
                 return nextSession;
             }
