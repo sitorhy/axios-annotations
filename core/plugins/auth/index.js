@@ -18,16 +18,20 @@ export default function AuthorizationPlugin(authorizer = new Authorizer()) {
                         try {
                             await authorizer.storageSession(await authorizer.refreshSession(session));
                         } catch (e2) {
-                            await authorizer.onAuthorizedDenied(e2);
-                            throw e2;
+                            try {
+                                await authorizer.onAuthorizedDenied(e2);
+                            } catch (e3) {
+                                throw e3;
+                            }
                         }
                     }
+                    unauthorized = false;
                     (() => {
                         while (queue.size) {
                             queue.pop();
                         }
                     })();
-                    return queue.resend(e.config);
+                    return await queue.resend(e.config);
                 } else {
                     return await queue.push(e.config);
                 }

@@ -81,6 +81,18 @@ class Home extends React.Component {
     };
 
     componentDidMount() {
+
+        authorizer.sessionRefreshCallback = (session) => {
+            this.props.dispatch({
+                type: "SET_ACCESS_TOKEN",
+                access_tokens: [session.access_token]
+            });
+            this.props.dispatch({
+                type: "SET_REFRESH_TOKEN",
+                refresh_tokens: [session.refresh_token]
+            });
+        };
+
         this.props.dispatch(
             (dispatch, getState) => {
                 testUnit().then(res => {
@@ -115,9 +127,7 @@ class Home extends React.Component {
                     refresh_tokens: [session.refresh_token]
                 });
                 authorizer.storageSession(session).then(() => {
-                    new AuthTestService().channel1("111").then(res => {
-                        console.log(res.data)
-                    })
+
                 });
             }).catch(e => {
                 console.log(e);

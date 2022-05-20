@@ -95,6 +95,6 @@ export default class Authorizer {
     }
 
     async onAuthorizedDenied(error) {
-
+        throw error;
     }
 }
