@@ -114,16 +114,16 @@ export class Service {
         if (rules) {
             const encoder = URLSearchParamsParser.decode(data);
             for (const key in rules) {
-                const value = URLSearchParamsParser.get(encoder, key);
+                const value = data[key];
                 const rule = rules[key];
                 if (!rule.body) {
-                    if (rule.required === false) {
+                    if (!rule.required) {
                         if (isNullOrEmpty(value)) {
                             if (URLSearchParamsParser.has(encoder, key)) {
                                 URLSearchParamsParser.delete(encoder, key);
                             }
                         }
-                    } else if (rule.required === true) {
+                    } else {
                         if (isNullOrEmpty(value)) {
                             if (!URLSearchParamsParser.has(encoder, key)) {
                                 URLSearchParamsParser.append(encoder, key, "");

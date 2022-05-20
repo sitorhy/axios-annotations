@@ -23,7 +23,7 @@ public class PrivateController {
         return result;
     }
 
-    @GetMapping("/channel2")
+    @PostMapping("/channel2")
     public SimpleResponseResult channel2(@RequestBody String marker) {
         SimpleResponseResult result = new SimpleResponseResult();
         result.setMessage(marker);

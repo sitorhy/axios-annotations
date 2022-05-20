@@ -3,6 +3,10 @@ import {connect} from "react-redux";
 import testUnit from "../../core/test/basic-test-unit";
 import testUnit2 from "../../core/test/auth-test-unit";
 
+import {authorizer} from "../../core/test/auth-config";
+import OAuth2Service from "../../core/test/oauth2-service";
+import AuthTestService from "../../core/test/auth-service";
+
 function genRandom(min, max) {
     return (Math.random() * (max - min + 1) | 0) + min;
 }
@@ -89,27 +93,96 @@ class Home extends React.Component {
         );
     }
 
-    testAuth = () => {
-        this.props.dispatch((dispatch, getState) => {
-            dispatch({
-                type: "CLEAR"
-            });
-            const {
-                auth
-            } = getState();
-            const {results} = auth;
-            const {
-                channel1_1 = [],
-                channel1_2 = [],
-                channel2_1 = [],
-                channel2_2 = []
-            } = results;
+    testAuthOnce = () => {
+        const {
+            auth
+        } = this.props;
 
-            connectChannel(channel1_1, "channel1", "channel1_1", dispatch);
-            connectChannel(channel1_2, "channel2", "channel1_2", dispatch);
-            connectChannel(channel2_1, "channel1", "channel2_1", dispatch);
-            connectChannel(channel2_2, "channel2", "channel2_2", dispatch);
-        });
+        const {
+            access_tokens,
+            refresh_tokens
+        } = auth;
+
+        if (!access_tokens.length || !refresh_tokens.length) {
+            new OAuth2Service().token().then(res => {
+                const session = res.data;
+                this.props.dispatch({
+                    type: "SET_ACCESS_TOKEN",
+                    access_tokens: [session.access_token]
+                });
+                this.props.dispatch({
+                    type: "SET_REFRESH_TOKEN",
+                    refresh_tokens: [session.refresh_token]
+                });
+                authorizer.storageSession(session).then(() => {
+                    new AuthTestService().channel1("111").then(res => {
+                        console.log(res.data)
+                    })
+                });
+            }).catch(e => {
+                console.log(e);
+            });
+        } else {
+            new AuthTestService().channel1(new Date().toLocaleTimeString()).then(({data}) => {
+                console.log(data);
+            }).catch(e => {
+                console.log(e);
+            });
+        }
+    };
+
+    testAuth = () => {
+        const {
+            auth
+        } = this.props;
+
+        const {
+            access_tokens,
+            refresh_tokens
+        } = auth;
+
+        if (!access_tokens.length || !refresh_tokens.length) {
+            new OAuth2Service().token().then(res => {
+                const session = res.data;
+                this.props.dispatch({
+                    type: "SET_ACCESS_TOKEN",
+                    access_tokens: [session.access_token]
+                });
+                this.props.dispatch({
+                    type: "SET_REFRESH_TOKEN",
+                    refresh_tokens: [session.refresh_token]
+                });
+                authorizer.storageSession(session).then(() => {
+                    new AuthTestService().channel1("111").then(res => {
+                        console.log(res.data)
+                    })
+                });
+                this.testAuth();
+            }).catch(e => {
+                console.log(e);
+            });
+        } else {
+            this.props.dispatch((dispatch, getState) => {
+                dispatch({
+                    type: "CLEAR"
+                });
+                const {
+                    auth
+                } = getState();
+                const {results} = auth;
+                const {
+                    channel1_1 = [],
+                    channel1_2 = [],
+                    channel2_1 = [],
+                    channel2_2 = []
+                } = results;
+
+                connectChannel(channel1_1, "channel1", "channel1_1", dispatch);
+                connectChannel(channel1_2, "channel2", "channel1_2", dispatch);
+                connectChannel(channel2_1, "channel1", "channel2_1", dispatch);
+                connectChannel(channel2_2, "channel2", "channel2_2", dispatch);
+            });
+        }
     }
 
     render() {
@@ -164,9 +237,10 @@ class Home extends React.Component {
                     <div className="panel-heading">
                         <div>Auth Plugin</div>
                     </div>
-
-                    <button type="button" className="btn btn-primary" onClick={this.testAuth}>并发测试</button>
-                    
+                    <div className="btn-group" role="group" aria-label="...">
+                        <button type="button" className="btn btn-primary" onClick={this.testAuth}>并发测试</button>
+                        <button type="button" className="btn btn-primary" onClick={this.testAuthOnce}>单步测试</button>
+                    </div>
                     <table className="table table-striped">
                         <thead>
                         <tr>
@@ -179,14 +253,18 @@ class Home extends React.Component {
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>
-                                <th>{auth.access_token}</th>
-                            </td>
-                            <td>
-                                <th>{auth.refresh_token}</th>
-                            </td>
-                        </tr>
+                        {
+                            auth.access_tokens.map((i, j) => {
+                                return <tr>
+                                    <td>
+                                        <th>{auth.access_tokens[j]}</th>
+                                    </td>
+                                    <td>
+                                        <th>{auth.refresh_tokens[j]}</th>
+                                    </td>
+                                </tr>
+                            })
+                        }
                         </tbody>
                     </table>
 

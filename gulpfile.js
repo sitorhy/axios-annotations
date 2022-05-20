@@ -28,7 +28,7 @@ function deleteFile(location, targetSubDir) {
         `main/client/src/${targetSubDir}/`.replace(/\\/g, "/")
     ];
     dest.forEach(i => {
-        fs.unlink(i, function () {
+        fs.unlink(i + location, function () {
             console.log(`unlink "${location}"`);
         });
     });

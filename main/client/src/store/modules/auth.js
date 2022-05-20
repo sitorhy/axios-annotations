@@ -20,10 +20,21 @@ export default function (state = {
         channel1_2: [],
         channel2_2: []
     },
-    access_token: "",
-    refresh_token: ""
+    access_tokens: [],
+    refresh_tokens: []
 }, action) {
+
     switch (action.type) {
+        case "SET_ACCESS_TOKEN": {
+            return Object.assign({}, state, {
+                access_tokens: [].concat(state.access_tokens).concat(action.access_tokens)
+            });
+        }
+        case "SET_REFRESH_TOKEN": {
+            return Object.assign({}, state, {
+                refresh_tokens: [].concat(state.refresh_tokens).concat(action.refresh_tokens)
+            });
+        }
         case "CLEAR": {
             return Object.assign({}, state, {
                 results: {

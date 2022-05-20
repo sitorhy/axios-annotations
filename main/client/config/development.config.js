@@ -8,7 +8,10 @@ module.exports = merge(require("./webpack.config"), {
         proxy: {
             "/api": {
                 target: "http://localhost:8888",
-                changeOrigin: true
+                changeOrigin: false,
+                pathRewrite: {
+                    '^/api': ''
+                }
             }
         }
     }
