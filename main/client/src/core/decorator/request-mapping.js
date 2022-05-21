@@ -7,6 +7,7 @@ export default function RequestMapping(path, method = null) {
                 method = "GET";
             }
             const fn = descriptor.value;
+
             descriptor.value = function () {
                 const data = fn.apply(this, arguments);
                 const query = this.querystring(name, data);

@@ -9,10 +9,6 @@ import App from "./components/App";
 import URLSearchParamsParser from "./core/core/parser";
 
 if (typeof URLSearchParams === "undefined") {
-    URLSearchParamsParser.decode = function (params) {
-        return params;
-    };
-
     URLSearchParamsParser.encode = function (encoder) {
         return qs.stringify(encoder);
     }

@@ -6,9 +6,7 @@ export default function AuthorizationPlugin(authorizer = new Authorizer()) {
         let unauthorized = false;
         const queue = new PendingQueue(authorizer);
 
-        config.axios.interceptors.response.use(i => {
-            return i;
-        }, async function (e) {
+        config.axios.interceptors.response.use(i => i, async function (e) {
             const {response} = e;
             if (!authorizer.checkResponse(response)) {
                 if (!unauthorized) {

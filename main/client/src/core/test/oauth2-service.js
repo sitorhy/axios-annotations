@@ -3,6 +3,8 @@ import {Service} from "../core/service";
 import RequestConfig from "../decorator/request-config";
 import RequestMapping from "../decorator/request-mapping";
 import RequestParam from "../decorator/request-param";
+import GetMapping from "../decorator/get-mapping";
+import RequestBody from "../decorator/request-body";
 
 const config = new Config();
 config.host = "localhost";
@@ -13,13 +15,14 @@ config.prefix = "/api";
 @RequestConfig(config)
 @RequestMapping("/oauth")
 export default class OAuth2Service extends Service {
-    @RequestMapping("/token", "GET")
+    @GetMapping("/token")
     @RequestParam("grant_type", true)
     @RequestParam("scope", false)
     @RequestParam("client_id", false)
     @RequestParam("client_secret", false)
     @RequestParam("username", false)
     @RequestParam("password", false)
+    @RequestBody()
     token() {
         return {
             grant_type: "password",
@@ -31,7 +34,7 @@ export default class OAuth2Service extends Service {
         };
     }
 
-    @RequestMapping("/token")
+    @GetMapping("/token")
     @RequestParam("grant_type", true)
     @RequestParam("scope", false)
     @RequestParam("client_id", false)

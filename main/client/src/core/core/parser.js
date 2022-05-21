@@ -3,14 +3,27 @@ import {isNullOrEmpty} from "./common";
 const URLSearchParamsParser = {
     encode: function (encoder) {
         if (typeof URLSearchParams === "undefined") {
-            return encoder;
+            return Object.entries(encoder).reduce((arr, [key, value = undefined]) => {
+                if (Array.isArray(value)) {
+                    value.forEach(i => {
+                        arr.push(`${key}=${encodeURIComponent(i === null ? "null" : (i === undefined ? "" : i))}`);
+                    });
+                } else {
+                    arr.push(`${key}=${encodeURIComponent(value === null ? "null" : (value === undefined ? "" : value))}`);
+                }
+                return arr;
+            }, []).join("&");
         } else {
             return encoder.toString();
         }
     },
 
     decode: function (params) {
-        return new URLSearchParams(params);
+        if (typeof URLSearchParams === "undefined") {
+            return Object.assign({}, params);
+        } else {
+            return new URLSearchParams(params);
+        }
     },
 
     has(encoder, key) {

@@ -113,22 +113,26 @@ export class Service {
         const rules = this._params && this._params[id] ? this._params[id] : null;
         if (rules) {
             const encoder = URLSearchParamsParser.decode(data);
-            for (const key in rules) {
+            for (const key in data) {
                 const value = data[key];
                 const rule = rules[key];
-                if (!rule.body) {
-                    if (!rule.required) {
-                        if (isNullOrEmpty(value)) {
-                            if (URLSearchParamsParser.has(encoder, key)) {
-                                URLSearchParamsParser.delete(encoder, key);
+                if (rule) {
+                    if (!rule.body) {
+                        if (!rule.required) {
+                            if (isNullOrEmpty(value)) {
+                                if (URLSearchParamsParser.has(encoder, key)) {
+                                    URLSearchParamsParser.delete(encoder, key);
+                                }
+                            }
+                        } else {
+                            if (isNullOrEmpty(value)) {
+                                if (!URLSearchParamsParser.has(encoder, key)) {
+                                    URLSearchParamsParser.append(encoder, key, "");
+                                }
                             }
                         }
                     } else {
-                        if (isNullOrEmpty(value)) {
-                            if (!URLSearchParamsParser.has(encoder, key)) {
-                                URLSearchParamsParser.append(encoder, key, "");
-                            }
-                        }
+                        URLSearchParamsParser.delete(encoder, key);
                     }
                 } else {
                     URLSearchParamsParser.delete(encoder, key);
@@ -147,7 +151,7 @@ export class Service {
             for (const r in rules) {
                 const rule = rules[r];
                 if (rule.body === true) {
-                    return !isNullOrEmpty(data) ? data[r] : null;
+                    return !isNullOrEmpty(data) ? data[r] : undefined;
                 }
             }
         }

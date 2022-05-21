@@ -1,9 +1,7 @@
 import {isNullOrEmpty} from "../../core/common";
 
 export default class SessionHistory {
-    static HistorySize = 10;
-
-    _history = new Array(SessionHistory.HistorySize);
+    _history = new Array(20);
     _position = 0;
     _size = 0;
 
@@ -16,12 +14,13 @@ export default class SessionHistory {
             return;
         }
         const {access_token, accessToken, token, refresh_token, refreshToken} = session;
-        this._history[this._position % SessionHistory.HistorySize] = {
+        this._history[this._position] = {
             access_token: access_token || accessToken || token,
             refresh_token: refresh_token || refreshToken,
             invalid: false
         };
-        this._position %= SessionHistory.HistorySize;
+        this._position++;
+        this._position %= this._history.length;
         this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
     }
 
