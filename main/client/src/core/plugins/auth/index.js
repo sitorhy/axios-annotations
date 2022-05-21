@@ -1,7 +1,6 @@
-import Authorizer from "./authorizer";
 import PendingQueue from "./queue";
 
-export default function AuthorizationPlugin(authorizer = new Authorizer()) {
+export default function AuthorizationPlugin(authorizer) {
     return function (config) {
         let unauthorized = false;
         const queue = new PendingQueue(authorizer);
@@ -16,6 +15,7 @@ export default function AuthorizationPlugin(authorizer = new Authorizer()) {
                         // not need to validate invalid refresh_token
                         try {
                             await authorizer.onAuthorizedDenied(e);
+                            authorizer.sessionHistory.clean();
                         } catch (e5) {
                             throw e;
                         } finally {
@@ -31,6 +31,7 @@ export default function AuthorizationPlugin(authorizer = new Authorizer()) {
                             authorizer.sessionHistory.deprecate(session);
                             try {
                                 await authorizer.onAuthorizedDenied(e2);
+                                authorizer.sessionHistory.clean();
                             } catch (e3) {
                                 throw e;
                             } finally {

@@ -1,0 +1,2 @@
+export default function RequestHeader(header: string, value: string): (() => Promise<any>);
+export default function RequestHeader(header: string, value: ((...args: any[]) => string)): (() => Promise<any>);

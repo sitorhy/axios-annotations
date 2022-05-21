@@ -1,8 +1,8 @@
 import {isNullOrEmpty, normalizePath} from "./common";
 import URLSearchParamsParser from "./parser";
-import config from "./config";
+import {config} from "./config";
 
-export class Service {
+export default class Service {
     _path = "";
     _config = config;
     _headers = {};

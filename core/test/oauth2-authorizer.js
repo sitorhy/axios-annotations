@@ -22,7 +22,6 @@ export default class OAuth2Authorizer extends Authorizer {
     }
 
     async refreshSession(session) {
-        console.log('access_token invalid.');
         const oauthService = new OAuth2Service();
 
         let res;
@@ -44,8 +43,6 @@ export default class OAuth2Authorizer extends Authorizer {
     }
 
     async onAuthorizedDenied(error) {
-        console.log('refresh_token invalid.');
-
         if (this.reLoginAuto) {
             const res = await new OAuth2Service().token();
             if (res && res.data) {

@@ -1,7 +1,7 @@
 import {isNullOrEmpty} from "../../core/common";
 
 export default class SessionHistory {
-    _history = new Array(20);
+    _history = new Array(10);
     _position = 0;
     _size = 0;
 
@@ -35,8 +35,10 @@ export default class SessionHistory {
     }
 
     deprecate(session) {
+        let position = 0;
         const {refresh_token, refreshToken} = session;
-        const matching = this._history.find(s => {
+        const matching = this._history.find((s, i) => {
+            position = i;
             if (s) {
                 return (s.refresh_token || s.refreshToken) === (refresh_token || refreshToken);
             }
@@ -44,7 +46,20 @@ export default class SessionHistory {
         });
         if (matching) {
             matching.invalid = true;
+            const first = this._history[0];
+            this._history[0] = this._history[position];
+            this._history[position] = first;
         }
+    }
+
+    clean() {
+        for (let i = 0; i < this._history.length; ++i) {
+            const s = this._history[i];
+            if (s && s.invalid) {
+                this._history[i] = null;
+            }
+        }
+        this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
     }
 
     isDeprecated(session) {

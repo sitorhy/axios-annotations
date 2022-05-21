@@ -1,4 +1,4 @@
-import {Config} from "../core/config";
+import Config from "../core/config";
 
 const config = new Config();
 

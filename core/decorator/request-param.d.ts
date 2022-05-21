@@ -1,0 +1,1 @@
+export default function RequestParam(name: string, required?: boolean): (() => Promise<any>);

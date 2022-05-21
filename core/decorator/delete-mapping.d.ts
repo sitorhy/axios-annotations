@@ -1,0 +1,1 @@
+export default function DeleteMapping(path: string): (() => Promise<any>);

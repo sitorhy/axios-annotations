@@ -1,0 +1,1 @@
+export default function PostMapping(path: string): (() => Promise<any>);

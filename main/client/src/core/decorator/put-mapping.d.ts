@@ -1,0 +1,1 @@
+export default function PutMapping(path: string): (() => Promise<any>);

@@ -56,7 +56,7 @@ gulp.task("dev", gulp.series(["deploy"], async () => {
 }));
 
 gulp.task("build", async () => {
-    const miniprogram = "dist";
+    const miniprogram = "";
     if (!fs.existsSync("dist")) {
         fs.mkdirSync("dist");
     }
@@ -70,13 +70,15 @@ gulp.task("build", async () => {
         keywords
     } = info;
 
-    gulp.src("core/**/*.js")
-        .pipe(babel({
-            presets: ["@babel/env"],
-            comments: false
-        }))
-        .pipe(uglify())
-        .pipe(gulp.dest(`dist/${miniprogram}`));
+    ["core", "decorator", "plugins", "plugins/auth", "./"].forEach(dir => {
+        gulp.src(`core/${dir}/*.js`)
+            .pipe(babel({
+                presets: ["@babel/env"],
+                comments: false
+            }))
+            .pipe(uglify())
+            .pipe(gulp.dest(`dist${miniprogram ? "/" + miniprogram : ""}/${dir}`));
+    });
 
     gulp.src("LICENSE")
         .pipe(gulp.dest("dist"));

@@ -1,0 +1,1 @@
+export default function RequestBody(name?: string): (() => Promise<any>);

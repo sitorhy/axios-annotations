@@ -1,4 +1,4 @@
-import {Config} from "../core/config";
+import Config from "../core/config";
 import AuthorizationPlugin from "../plugins/auth/index";
 import OAuth2Authorizer from "./oauth2-authorizer";
 

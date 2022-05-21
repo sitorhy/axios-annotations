@@ -1,5 +1,19 @@
 import axios from "axios";
 
+function random(min, max) {
+    return (Math.random() * (max - min + 1) | 0) + min;
+}
+
+function sleep(time) {
+    return new Promise(resolve => {
+        let t = setTimeout(() => {
+            clearTimeout(t);
+            t = undefined;
+            resolve();
+        }, time);
+    });
+}
+
 export default class PendingQueue {
     _queue = [];
     _authorizer = null;
@@ -14,6 +28,9 @@ export default class PendingQueue {
 
     async resend(error, retries = 3) {
         for (let i = 0; i < retries; ++i) {
+            if (i > 0) {
+                await sleep(random(3000, 5000));
+            }
             const session = await this._authorizer.getSession();
             if (this._authorizer.sessionHistory.isDeprecated(session)) {
                 // without re-login again, residual invalid session
@@ -36,13 +53,9 @@ export default class PendingQueue {
         });
     }
 
-    async pop() {
+    pop() {
         const {error, resolve, reject} = this._queue.shift();
-        try {
-            resolve(await this.resend(error));
-        } catch (e) {
-            reject(e);
-        }
+        this.resend(error).then(resolve).catch(reject);
     }
 
     clear() {

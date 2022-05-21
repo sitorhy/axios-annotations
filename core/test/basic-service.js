@@ -1,6 +1,6 @@
 import config from "./basic-config";
 
-import {Service} from "../core/service";
+import Service from "../core/service";
 import RequestMapping from "../decorator/request-mapping";
 import RequestConfig from "../decorator/request-config";
 import RequestParam from "../decorator/request-param";
@@ -20,7 +20,7 @@ export default class BasicTestService extends Service {
 
     @RequestMapping("/message", "POST")
     @RequestParam("from", false)
-    @RequestBody("body")
+    @RequestBody()
     @RequestHeader("Content-Type", "text/plain")
     postMessage(message, from) {
         return {

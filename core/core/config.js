@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export class Config {
+export default class Config {
     _host = "localhost";
     _port = 8080;
     _protocol = "http";
@@ -65,4 +65,4 @@ export class Config {
     }
 }
 
-export default new Config();
+export const config = new Config();

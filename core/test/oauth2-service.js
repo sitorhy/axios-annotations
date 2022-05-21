@@ -1,5 +1,5 @@
-import {Config} from "../core/config";
-import {Service} from "../core/service";
+import Config from "../core/config";
+import Service from "../core/service";
 import RequestConfig from "../decorator/request-config";
 import RequestMapping from "../decorator/request-mapping";
 import RequestParam from "../decorator/request-param";
@@ -36,11 +36,10 @@ export default class OAuth2Service extends Service {
 
     @GetMapping("/token")
     @RequestParam("grant_type", true)
+    @RequestParam("refresh_token", true)
     @RequestParam("scope", false)
-    @RequestParam("client_id", false)
-    @RequestParam("client_secret", false)
-    @RequestParam("username", false)
-    @RequestParam("password", false)
+    @RequestParam("client_id", true)
+    @RequestParam("client_secret", true)
     refreshToken(session) {
         return {
             grant_type: "refresh_token",
