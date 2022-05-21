@@ -1,4 +1,4 @@
-import {AxiosError, AxiosRequestConfig} from "axios";
+import {AxiosError, AxiosPromise, AxiosRequestConfig} from "axios";
 import SessionStorage from "./storage";
 import SessionHistory from "./history";
 
@@ -33,7 +33,7 @@ export default class Authorizer {
 
     storageSession(session: Session): Promise<void>;
 
-    refreshSession(session: Session): Promise<Session>;
+    refreshSession(session: Session): AxiosPromise<Session>;
 
     withAuthentication(request: AxiosRequestConfig, session: Session): void;
 

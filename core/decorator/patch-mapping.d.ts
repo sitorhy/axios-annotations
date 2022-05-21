@@ -1,1 +1,3 @@
-export default function PatchMapping(path: string): (() => Promise<any>);
+import {AxiosPromise} from "axios";
+
+export default function PatchMapping(path: string): (() => AxiosPromise<any>);

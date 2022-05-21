@@ -1,1 +1,3 @@
-export default function DeleteMapping(path: string): (() => Promise<any>);
+import {AxiosPromise} from "axios";
+
+export default function DeleteMapping(path: string): (() => AxiosPromise<any>);

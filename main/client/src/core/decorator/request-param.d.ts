@@ -1,1 +1,3 @@
-export default function RequestParam(name: string, required?: boolean): (() => Promise<any>);
+import {AxiosPromise} from "axios";
+
+export default function RequestParam(name: string, required?: boolean): (() => AxiosPromise<any>);

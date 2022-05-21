@@ -1,1 +1,3 @@
-export default function PostMapping(path: string): (() => Promise<any>);
+import {AxiosPromise} from "axios";
+
+export default function PostMapping(path: string): (() => AxiosPromise<any>);

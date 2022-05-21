@@ -1,4 +1,5 @@
 import Config from "./config";
+import {AxiosPromise, AxiosRequestConfig} from "axios";
 
 export declare interface ArgumentMappingRule {
     required: boolean;
@@ -20,7 +21,7 @@ export default class Service {
 
     body(id: string, data: Record<string, any>);
 
-    createRequestConfig(method: string, path: string, data: Record<string, any>, config: Record<string, any>);
+    createRequestConfig(method: string, path: string, data: any, config: Partial<AxiosRequestConfig>): AxiosRequestConfig;
 
-    request(method: string, path: string, data: Record<string, any>, config: Record<string, any>);
+    request(method: string, path: string, data: any, config: Partial<AxiosRequestConfig>): AxiosPromise;
 }

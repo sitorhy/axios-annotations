@@ -1,1 +1,3 @@
-export default function PutMapping(path: string): (() => Promise<any>);
+import {AxiosPromise} from "axios";
+
+export default function PutMapping(path: string): (() => AxiosPromise<any>);

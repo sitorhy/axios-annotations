@@ -11,7 +11,9 @@
     "url": "git+ssh://git@github.com/sitorhy/axios-annotations.git"
   },
   "keywords": [
-    "axios"
+    "axios",
+    "axios-annotations",
+    "axios-decorators"
   ],
   "author": "sitorhy",
   "license": "MIT",

@@ -89,8 +89,10 @@ gulp.task("build", async () => {
     gulp.src("core/**/tsconfig.json")
         .pipe(gulp.dest(`dist`));
 
-    gulp.src("core/*.d.ts")
-        .pipe(gulp.dest(`dist`));
+    ["core", "decorator", "plugins", "plugins/auth", "./"].forEach(dir => {
+        gulp.src(`core/${dir}/*.d.ts`)
+            .pipe(gulp.dest(`dist/${dir}`));
+    });
 
     fs.writeFileSync("dist/package.json", JSON.stringify({
         name,
