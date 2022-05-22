@@ -10,7 +10,7 @@ export default function RequestMapping(path, method = null) {
 
             descriptor.value = function () {
                 const data = fn.apply(this, arguments);
-                if (data && typeof data.then === "function") {
+                if (data && Object.hasOwnProperty.call(data, "then") && typeof data.then === "function") {
                     return new Promise((resolve, reject) => {
                         data.then(d => {
                             const {

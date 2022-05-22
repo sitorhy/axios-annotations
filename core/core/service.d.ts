@@ -18,7 +18,7 @@ export default class Service {
 
     path: string;
 
-    request(method: string, path: string, data: any, config: Partial<AxiosRequestConfig>): AxiosPromise<any>;
+    request(method: string, path: string, data?: any, config?: Partial<AxiosRequestConfig>): AxiosPromise<any>;
 
     requestWith(method: string, path: string): RequestController;
 }
