@@ -4,8 +4,7 @@ export default function RequestBody(name = "body") {
             const fn = descriptor.value;
             const cfg = {
                 required: false,
-                body: true,
-                header: false
+                body: true
             };
             descriptor.value = function () {
                 this.params(method, name, cfg);

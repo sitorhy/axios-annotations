@@ -1,9 +1,14 @@
 import Config from "./config";
 import {AxiosPromise, AxiosRequestConfig} from "axios";
 
-export declare interface ArgumentMappingRule {
-    required: boolean;
-    body: boolean;
+export interface RequestController {
+    param: (key: string, required?: boolean) => RequestController;
+
+    header: (header: string, value: string | ((...args: any[]) => string)) => RequestController;
+
+    body: (key: string) => RequestController;
+
+    send: (data: Record<string, any>) => AxiosPromise<any>;
 }
 
 export default class Service {
@@ -13,15 +18,7 @@ export default class Service {
 
     path: string;
 
-    params(id: string, name: string, config: ArgumentMappingRule);
+    request(method: string, path: string, data: any, config: Partial<AxiosRequestConfig>): AxiosPromise<any>;
 
-    headers(id: string, header: string, value: (() => string) | string);
-
-    querystring(id: string, data: Record<string, any>) ;
-
-    body(id: string, data: Record<string, any>);
-
-    createRequestConfig(method: string, path: string, data: any, config: Partial<AxiosRequestConfig>): AxiosRequestConfig;
-
-    request(method: string, path: string, data: any, config: Partial<AxiosRequestConfig>): AxiosPromise;
+    requestWith(method: string, path: string): RequestController;
 }

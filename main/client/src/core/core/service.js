@@ -89,23 +89,19 @@ export default class Service {
 
     headers(id, header, value) {
         const root = this._headers || {};
-        const staticHeaders = root[id] || {};
-        const staticValue = staticHeaders[header];
-        if (!isNullOrEmpty(value)) {
-            if (staticValue !== value) {
-                Object.assign(root, {
-                    [id]: Object.assign(
-                        staticHeaders || {},
-                        {
-                            [header]: value
-                        }
-                    )
-                });
-            }
+        if (isNullOrEmpty(root[id])) {
+            Object.assign(root, {
+                [id]: Object.assign(
+                    root[id] || {},
+                    {
+                        [header]: value
+                    }
+                )
+            });
         } else if (isNullOrEmpty(header)) {
-            return staticHeaders;
+            return root[id] || {};
         } else {
-            return staticValue;
+            return root[id] ? root[id][header] : undefined;
         }
     }
 
@@ -159,17 +155,72 @@ export default class Service {
         return null;
     }
 
-    createRequestConfig(method, path, data = {}, config = {}) {
+    pathVariable(path, data) {
+        let p = path;
+        const matchers = p.match(/{\w+}/g);
+        if (Array.isArray(matchers)) {
+            matchers.forEach(m => {
+                const field = m.substring(1, m.length - 1);
+                p = p.replaceAll(`\{${field}\}`, data[field]);
+            });
+        }
+        return p;
+    }
+
+    createRequestConfig(id, path, data) {
+        const query = this.querystring(id, data);
+        const body = this.body(id, data);
+        const headersMap = this.headers(id);
+        const headers = {};
+        for (const h in headersMap) {
+            const value = headersMap[h];
+            if (typeof value === "function") {
+                headers[h] = value.apply(undefined, arguments);
+            } else {
+                headers[h] = value;
+            }
+        }
+        const p = `${path}${query ? '?' + query : ''}`;
+        return {
+            path: p,
+            body,
+            headers
+        }
+    }
+
+    request(method, path, data = {}, config = {}) {
         const url = path.indexOf("http") >= 0 ? path : this.config.baseURL + normalizePath(`/${this.path || ""}/${path}`);
-        return Object.assign({
+        return this.config.axios.request(Object.assign({
                 method,
                 url,
                 data
             }, config
-        );
+        ));
     }
 
-    request(method, path, data = {}, config = {}) {
-        return this.config.axios.request(this.createRequestConfig(method, path, data, config));
+    requestWith(method, path) {
+        const controller = {
+            param: (key, required = false) => {
+                this.params(path, key, {required, body: false});
+                return controller;
+            },
+            header: (header, value) => {
+                this.params(path, header, value);
+                return controller;
+            },
+            body: (key) => {
+                this.params(path, key, {required: false, body: true});
+                return controller;
+            },
+            send: (data) => {
+                const {
+                    path: p,
+                    body,
+                    headers
+                } = this.createRequestConfig(path, this.pathVariable(path, data), data);
+                return this.request(method, p, body, {headers});
+            }
+        };
+        return controller;
     }
 }

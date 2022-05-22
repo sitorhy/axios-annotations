@@ -1,13 +1,15 @@
+import {Session} from "./authorizer";
+
 export default class SessionHistory {
-    add(session): void;
+    add(session: Session): void;
 
-    check(jwt): boolean;
+    check(jwt: string): boolean;
 
-    deprecate(session): void;
+    deprecate(session: Session): void;
 
     clean(): void;
 
-    isDeprecated(session): boolean;
+    isDeprecated(session: Session): boolean;
 
     size: number;
 }

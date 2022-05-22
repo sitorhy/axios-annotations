@@ -4,8 +4,7 @@ export default function RequestParam(name, required = false) {
             const fn = descriptor.value;
             const cfg = Object.assign({
                 required: false,
-                body: false,
-                header: false
+                body: false
             }, {
                 required: required === true
             });

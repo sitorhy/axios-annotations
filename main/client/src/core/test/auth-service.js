@@ -3,7 +3,6 @@ import config from "./auth-config";
 import Service from "../core/service";
 import RequestConfig from "../decorator/request-config";
 import RequestMapping from "../decorator/request-mapping";
-import RequestParam from "../decorator/request-param";
 import RequestBody from "../decorator/request-body";
 import RequestHeader from "../decorator/request-header";
 
@@ -11,10 +10,10 @@ import RequestHeader from "../decorator/request-header";
 @RequestMapping("/auth")
 export default class AuthTestService extends Service {
 
-    @RequestMapping("/channel1", "GET")
-    @RequestParam("marker", true)
     channel1(marker) {
-        return {marker};
+        return this.requestWith("GET", "/channel1")
+            .param("marker", true)
+            .send({marker});
     }
 
     @RequestMapping("/channel2", "POST")
