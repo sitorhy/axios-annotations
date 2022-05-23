@@ -158,3 +158,13 @@ config.plugins = [
     })
 ];
 ```
+
+# Wechat MiniProgram
+微信小程序依赖
+<br>
+npm install axios@0.21
+<br>
+npm install axios-miniprogram-adapter
+> axios需要降级至0.21
+> <br>
+> 更新 devtool 以便支持 detector 语法
