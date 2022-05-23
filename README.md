@@ -93,7 +93,7 @@ export default class TestService extends Service {
 
 `vue-cli`等脚手架已默认支持装饰器。 
 <br>
-方法只需要返回参数，并注解参数类型，查询串或是请求体。
+方法只需要返回参数，并注解参数类型。
 
 ```javascript
 import Service from "axios-annotations/core/service";
@@ -290,7 +290,7 @@ export default class OAuth2Authorizer extends Authorizer {
 Implement SessionStorage if store mode changed.
 ```javascript
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SessionStorage from "axios-annotations/plugins/auth/SessionStorage";
+import SessionStorage from "axios-annotations/plugins/auth/storage";
 
 export default class RNSessionStorage extends SessionStorage {
     async set(key, value) {
@@ -316,11 +316,12 @@ export default class OAuth2Authorizer extends Authorizer {
     }
 }
 ```
-对需要进行认证的服务设置插件。
+在默认配置上设置插件。
 ```javascript
 // config.js
 import AuthorizationPlugin from "axios-annotations/plugins/auth/index";
 
+// default config
 const config = new Config();
 config.host = "localhost";
 config.port = 8080;
@@ -346,7 +347,7 @@ export default class TestService extends Service {
 ```
 首次登录，需要手动保存认证信息。
 <br>
-you may store grant information yourself when the first time login succeed.
+but you may store grant information yourself when the first time login succeed.
 ```javascript
 import {authorizer} from "/path/config.js";
 
