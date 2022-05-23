@@ -42,4 +42,8 @@ export default class Authorizer {
     checkResponse(response: Response): boolean;
 
     onAuthorizedDenied(error: AxiosError): Promise<void>;
+
+    onSessionInvalidated(): void;
+
+    invalidateSession(): Promise<void>;
 }

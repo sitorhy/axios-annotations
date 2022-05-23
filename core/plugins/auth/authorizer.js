@@ -70,4 +70,13 @@ export default class Authorizer {
     async onAuthorizedDenied(error) {
         throw error;
     }
+
+    onSessionInvalidated() {
+
+    }
+
+    async invalidateSession() {
+        await this.sessionStorage.remove(this.sessionKey);
+        this.onSessionInvalid();
+    }
 }
