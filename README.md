@@ -256,7 +256,8 @@ export default class OAuth2Authorizer extends Authorizer {
         if(!res || !res.data){
             throw new Error("Seession Unknow Error");
         }
-        return nextSession = res.data;
+        const nextSession = res.data;
+        return nextSession;
     }
 
     async onAuthorizedDenied(error) {
@@ -355,7 +356,7 @@ import {authorizer} from "/path/config.js";
 {
     methods: {
         registerApi().then(async session => {
-            await authorizer.sessionStorage.storageSession(session);
+            await authorizer.sessionStorage.storageSession(session.data);
             // redirect to other page ...
         });
     }
