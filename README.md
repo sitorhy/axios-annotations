@@ -122,6 +122,8 @@ export default class TestService extends Service {
     }
 }
 ```
+如果不爽部分IDE的`non-promise inspection info`下划线，也可以给方法加上`async`。
+
 
 ### QueryString Encoding
 `key-values pair`转查询串算法，运行环境不支持`URLSearchParams`时使用默认算法，也可以自定义。
@@ -137,8 +139,6 @@ if (typeof URLSearchParams === "undefined") {
     }
 }
 ```
-
-如果不爽部分IDE的`non-promise inspection info`下划线，也可以给方法加上`async`。
 
 ## Configuration
 
