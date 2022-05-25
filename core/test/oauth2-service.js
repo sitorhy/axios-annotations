@@ -8,7 +8,7 @@ import RequestBody from "../decorator/request-body";
 
 const config = new Config();
 config.host = "localhost";
-config.port = 8080;
+config.port = 8082;
 config.protocol = "http";
 config.prefix = "/api";
 

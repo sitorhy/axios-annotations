@@ -4,7 +4,7 @@ import OAuth2Authorizer from "./oauth2-authorizer";
 
 const config = new Config();
 config.host = "localhost";
-config.port = 8080;
+config.port = 8082;
 config.protocol = "http";
 config.prefix = "/api";
 

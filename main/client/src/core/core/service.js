@@ -2,11 +2,90 @@ import {isNullOrEmpty, normalizePath} from "./common";
 import URLSearchParamsParser from "./parser";
 import {config} from "./config";
 
+export const ConfigMapping = {
+    requestHeaders(rules, args = []) {
+        const headers = {};
+        if (rules) {
+            for (const h in rules) {
+                const value = rules[h];
+                if (typeof value === "function") {
+                    headers[h] = value.apply(undefined, args);
+                } else {
+                    headers[h] = value;
+                }
+            }
+        }
+        return headers;
+    },
+
+    axiosConfig(options, args) {
+        const config = {};
+        (options || []).forEach(o => {
+            if (typeof o === "function") {
+                Object.assign(config, o.apply(undefined, args));
+            } else {
+                Object.assign(config, o);
+            }
+        });
+        return config;
+    },
+
+    querystring(rules, data) {
+        if (rules) {
+            const encoder = URLSearchParamsParser.decode(data);
+            for (const key in data) {
+                const value = data[key];
+                const rule = rules[key];
+                if (rule) {
+                    if (!rule.body) {
+                        if (!rule.required) {
+                            if (isNullOrEmpty(value)) {
+                                if (URLSearchParamsParser.has(encoder, key)) {
+                                    URLSearchParamsParser.delete(encoder, key);
+                                }
+                            }
+                        } else {
+                            if (isNullOrEmpty(value)) {
+                                if (!URLSearchParamsParser.has(encoder, key)) {
+                                    URLSearchParamsParser.append(encoder, key, "");
+                                }
+                            }
+                        }
+                    } else {
+                        URLSearchParamsParser.delete(encoder, key);
+                    }
+                } else {
+                    URLSearchParamsParser.delete(encoder, key);
+                }
+            }
+
+            return URLSearchParamsParser.encode(encoder);
+        }
+
+        return "";
+    },
+
+    body(rules, data) {
+        if (rules) {
+            for (const r in rules) {
+                const rule = rules[r];
+                if (rule.body === true) {
+                    return !isNullOrEmpty(data) ? data[r] : undefined;
+                }
+            }
+        }
+
+        return null;
+    }
+};
+
 export default class Service {
     _path = "";
     _config = config;
     _headers = {};
     _params = {};
+    _configs = {};
+    _once = [];
 
     constructor(path = null) {
         if (!this._path && path) {
@@ -89,70 +168,21 @@ export default class Service {
 
     headers(id, header, value) {
         const root = this._headers || {};
-        if (isNullOrEmpty(root[id])) {
-            Object.assign(root, {
-                [id]: Object.assign(
-                    root[id] || {},
-                    {
-                        [header]: value
-                    }
-                )
-            });
-        } else if (isNullOrEmpty(header)) {
-            return root[id] || {};
-        } else {
-            return root[id] ? root[id][header] : undefined;
-        }
+        Object.assign(root, {
+            [id]: Object.assign(
+                root[id] || {},
+                {
+                    [header]: value
+                }
+            )
+        });
     }
 
-    querystring(id, data) {
-        const rules = this._params && this._params[id] ? this._params[id] : null;
-        if (rules) {
-            const encoder = URLSearchParamsParser.decode(data);
-            for (const key in data) {
-                const value = data[key];
-                const rule = rules[key];
-                if (rule) {
-                    if (!rule.body) {
-                        if (!rule.required) {
-                            if (isNullOrEmpty(value)) {
-                                if (URLSearchParamsParser.has(encoder, key)) {
-                                    URLSearchParamsParser.delete(encoder, key);
-                                }
-                            }
-                        } else {
-                            if (isNullOrEmpty(value)) {
-                                if (!URLSearchParamsParser.has(encoder, key)) {
-                                    URLSearchParamsParser.append(encoder, key, "");
-                                }
-                            }
-                        }
-                    } else {
-                        URLSearchParamsParser.delete(encoder, key);
-                    }
-                } else {
-                    URLSearchParamsParser.delete(encoder, key);
-                }
-            }
-
-            return URLSearchParamsParser.encode(encoder);
-        }
-
-        return "";
-    }
-
-    body(id, data) {
-        const rules = this._params && this._params[id] ? this._params[id] : null;
-        if (rules) {
-            for (const r in rules) {
-                const rule = rules[r];
-                if (rule.body === true) {
-                    return !isNullOrEmpty(data) ? data[r] : undefined;
-                }
-            }
-        }
-
-        return null;
+    configs(id, options) {
+        const root = this._configs || {};
+        Object.assign(root, {
+            [id]: (root[id] || []).concat(options)
+        });
     }
 
     pathVariable(path, data) {
@@ -167,24 +197,19 @@ export default class Service {
         return p;
     }
 
-    createRequestConfig(id, path, data) {
-        const query = this.querystring(id, data);
-        const body = this.body(id, data);
-        const headersMap = this.headers(id);
-        const headers = {};
-        for (const h in headersMap) {
-            const value = headersMap[h];
-            if (typeof value === "function") {
-                headers[h] = value.apply(undefined, arguments);
-            } else {
-                headers[h] = value;
-            }
-        }
+    createRequestConfig(id, path, data, headerArgs = [], configArgs = []) {
+        const query = ConfigMapping.querystring(this._params[id], data);
+        const body = ConfigMapping.body(this._params[id], data);
+        const headers = ConfigMapping.requestHeaders(this._headers[id], headerArgs);
+        const config = ConfigMapping.axiosConfig(this._configs[id], configArgs);
         const p = `${path}${query ? '?' + query : ''}`;
+        Object.assign(config, {
+            headers: Object.assign(headers, config.headers || null)
+        });
         return {
             path: p,
             body,
-            headers
+            config
         }
     }
 
@@ -199,26 +224,63 @@ export default class Service {
     }
 
     requestWith(method, path) {
+        const _params = {};
+        const _configs = [];
+        const _headers = {};
         const controller = {
             param: (key, required = false) => {
-                this.params(path, key, {required, body: false});
+                const rule = _params[key] || {};
+                Object.assign(
+                    _params,
+                    {
+                        [key]: Object.assign(
+                            rule,
+                            {required, body: false}
+                        )
+                    }
+                );
                 return controller;
             },
             header: (header, value) => {
-                this.params(path, header, value);
+                Object.assign(
+                    _headers,
+                    {
+                        [header]: value
+                    }
+                );
                 return controller;
             },
             body: (key) => {
-                this.params(path, key, {required: false, body: true});
+                const rule = _params[key] || {};
+                for (const r in _params) {
+                    const rule = _params[r];
+                    rule.body = false;
+                }
+                Object.assign(
+                    _params,
+                    {
+                        [key]: Object.assign(
+                            rule,
+                            {required: false, body: true}
+                        )
+                    }
+                );
+                return controller;
+            },
+            config: (cfg) => {
+                _configs.push(cfg);
                 return controller;
             },
             send: (data) => {
-                const {
-                    path: p,
-                    body,
-                    headers
-                } = this.createRequestConfig(path, this.pathVariable(path, data), data);
-                return this.request(method, p, body, {headers});
+                const query = ConfigMapping.querystring(_params, data);
+                const body = ConfigMapping.body(_params, data);
+                const headers = ConfigMapping.requestHeaders(_headers, [data]);
+                const config = ConfigMapping.axiosConfig(_configs, [data]);
+                const p = `${this.pathVariable(path, data)}${query ? '?' + query : ''}`;
+                Object.assign(config, {
+                    headers: Object.assign(headers, config.headers || null)
+                });
+                return this.request(method, p, body, config);
             }
         };
         return controller;

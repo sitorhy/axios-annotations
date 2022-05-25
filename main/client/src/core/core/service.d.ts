@@ -8,6 +8,8 @@ export interface RequestController {
 
     body: (key: string) => RequestController;
 
+    config: (config: Partial<AxiosRequestConfig>) => RequestController;
+
     send: (data: Record<string, any>) => AxiosPromise<any>;
 }
 

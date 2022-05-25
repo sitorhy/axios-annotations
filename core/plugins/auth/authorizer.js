@@ -77,6 +77,6 @@ export default class Authorizer {
 
     async invalidateSession() {
         await this.sessionStorage.remove(this.sessionKey);
-        this.onSessionInvalid();
+        this.onSessionInvalidated();
     }
 }

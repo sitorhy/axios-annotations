@@ -2,7 +2,7 @@ const merge = require("webpack-merge");
 
 module.exports = merge(require("./webpack.config"), {
     devServer: {
-        port: 8080,
+        port: 8082,
         host: "localhost",
         open: true,
         proxy: {

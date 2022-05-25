@@ -123,6 +123,21 @@ export default class TestService extends Service {
 }
 ```
 
+### QueryString Encoding
+`key-values pair`转查询串算法，运行环境不支持`URLSearchParams`时使用默认算法，也可以自定义。
+<br>
+使用第三方库,`qs`,`querystring`,`url-search-params-polyfill`等，不同运行环境下可能有差异。
+```javascript
+import qs from "qs";
+import URLSearchParamsParser from "axios-annotations/core/parser";
+
+if (typeof URLSearchParams === "undefined") {
+    URLSearchParamsParser.encode = function (encoder) {
+        return qs.stringify(encoder);
+    }
+}
+```
+
 如果不爽部分IDE的`non-promise inspection info`下划线，也可以给方法加上`async`。
 
 ## Configuration
@@ -265,7 +280,7 @@ export default class OAuth2Authorizer extends Authorizer {
         // refresh_token 过期触发该回调，在此进行重新登录或注销操作
 
         // try logout, clean session.
-        // this.invalidateSession();
+        // await this.invalidateSession();
         // return;
         
         const res = await new OAuth2Service().token();
@@ -362,3 +377,80 @@ import {authorizer} from "/path/config.js";
     }
 }
 ```
+
+## API
+### Service
+#### request(method, path, data?, config?): AxiosPromise
++ method : string  `GET / POST / DELETE...`
++ path : string `相对路径`
++ data : Object `请求体`
++ config : Object `AxiosRequestConfig`
+
+#### requestWith(method, path): RequestController
++ method : string `GET /POST / DELETE...`
++ path : string `相对路径`
+
+> #### RequestController
+> + param: (key, required?) : RequestController
+>   + key : string  `标记查询串参数`
+>   + required : boolean  `默认false，空字符串，null，undefined 将忽略`
+> + header: (header, header) : RequestController
+>   + header : string `url 附加参数键值`
+>   + header : string | function `字符串，或者接收 send 方法参数的函数，该函数应返回合法值。`
+>
+> + body: (key) : RequestController
+>   + key : string `标记参数中请求体`
+>
+> + config: (cfg) : RequestController
+>   + cfg : `AxiosRequestConfig`
+>
+> + send: (data) : AxiosPromise<any>
+>   + data : object `参数键值对` 
+
+### Decorators
+#### RequestMapping(path, method?)
++ path : string `相对路径`
++ method : string  `默认GET，注解服务类时忽略该参数`
+> 注解方法时，可以使用简化形式：
+> <br>
+> GetMapping(path)
+> <br>
+> PostMapping(path)
+> <br>
+> PatchMapping(path)
+> <br>
+> PutMapping(path)
+> <br>
+> DeleteMapping(path)
+
+#### RequestParam(name, required?)
++ name : string `方法返回值属性`
++ required : boolean  `是否必要参数`
+
+#### RequestHeader(header, value)
++ header : string `请求头`
++ value : string  `字符串或函数` 
+> 使用函数。
+> ```javascript
+>    class TestService extends Service {
+>        @RequestHeader("Authorization", (token) => {
+>            return `Basic ${token}`;
+>        })
+>        @RequestMapping("/login", "GET")
+>        foo(token) {
+>            return {};
+>        }
+>    }
+>  ```
+
+#### RequestBody(name)
++ name : string `方法返回值属性，默认为 body`
+
+## 运行环境
+部分运行环境，例如微信小程序，`axios`需要降级。<br>
+微信小程序：
+```shell
+npm install axios@0.21.0
+npm install axios-miniprogram-adapter
+```
+更新开发工具版本以支持装饰器语法。
