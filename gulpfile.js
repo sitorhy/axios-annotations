@@ -56,7 +56,7 @@ gulp.task("dev", gulp.series(["deploy"], async () => {
 }));
 
 gulp.task("build", async () => {
-    const miniprogram = "";
+    const miniprogram = "lib";
     if (!fs.existsSync("dist")) {
         fs.mkdirSync("dist");
     }
@@ -70,14 +70,14 @@ gulp.task("build", async () => {
         keywords
     } = info;
 
-    ["core", "decorator", "plugins", "plugins/auth", "./"].forEach(dir => {
+    ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.js`)
             .pipe(babel({
                 presets: ["@babel/env"],
                 comments: false
             }))
             .pipe(uglify())
-            .pipe(gulp.dest(`dist${miniprogram ? "/" + miniprogram : ""}/${dir}`));
+            .pipe(gulp.dest(`dist/${dir}`));
     });
 
     gulp.src("LICENSE")
@@ -89,8 +89,13 @@ gulp.task("build", async () => {
     gulp.src("core/**/tsconfig.json")
         .pipe(gulp.dest(`dist`));
 
-    ["core", "decorator", "plugins", "plugins/auth", "./"].forEach(dir => {
+    ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.d.ts`)
+            .pipe(gulp.dest(`dist/${dir}`));
+    });
+
+    ["core", "decorator", "plugins", "plugins/auth", "./"].forEach(dir => {
+        gulp.src(`core/${dir}/*.js`)
             .pipe(gulp.dest(`dist/${dir}`));
     });
 
