@@ -271,7 +271,7 @@ export default class Service {
                 _configs.push(cfg);
                 return controller;
             },
-            send: (data) => {
+            send: (data = {}) => {
                 const query = ConfigMapping.querystring(_params, data);
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);

@@ -446,6 +446,38 @@ import {authorizer} from "/path/config.js";
 #### RequestBody(name)
 + name : string `方法返回值属性，默认为 body`
 
+
+### Authorizer (Optional Plugin)
++ sessionKey : string `键值名称`
+    ```javascript
+    authorizer.sessionKey = "$_SESSION"; // default value
+    ```
++ getSession : Promise<Session> `获取授权信息`
+  ```javascript
+  function onLogin(){
+    authorizer.getSession().then(session => {
+        // fetch other info / redirect to other page
+        store.dispatch('SAVE_USER_INFO' , info);
+    });
+  }  
+  ```
++ checkResponse(response:AxiosResponse) : boolean `检查授权是否过期`
+  ```javascript
+  class OAuth2Authorizer extends Authorizer {
+    checkResponse(response){
+        return response.stauts === 401; // default implement
+    } 
+  }
+  ```
+
++ withAuthentication(request: AxiosRequestConfig, session: Session) : void `请求附加认证信息，默认附加请求头`
+  ```javascript
+  class OAuth2Authorizer extends Authorizer {
+    withAuthentication(request, session){
+        request.headers.Authorization = 'Bearer 0x123456';
+    } 
+  }
+  ``` 
 ## 运行环境
 部分运行环境，例如微信小程序，`axios`需要降级。<br>
 微信小程序：
