@@ -51,7 +51,7 @@ export default class TestService extends Service {
     path(id) {
         return this.requestWith("GET", "/path3/{id}")
             .send({
-              id: data1
+              id
             });
     }
 

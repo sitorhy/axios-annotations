@@ -70,7 +70,7 @@ gulp.task("build", async () => {
         keywords
     } = info;
 
-    ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "./"].forEach(dir => {
+    ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "lib/plugins/cache", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.js`)
             .pipe(babel({
                 presets: ["@babel/env"],
@@ -89,12 +89,12 @@ gulp.task("build", async () => {
     gulp.src("core/**/tsconfig.json")
         .pipe(gulp.dest(`dist`));
 
-    ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "./"].forEach(dir => {
+    ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "lib/plugins/cache", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.d.ts`)
             .pipe(gulp.dest(`dist/${dir}`));
     });
 
-    ["core", "decorator", "plugins", "plugins/auth", "./"].forEach(dir => {
+    ["core", "decorator", "plugins", "plugins/auth", "plugins/cache", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.js`)
             .pipe(gulp.dest(`dist/${dir}`));
     });
