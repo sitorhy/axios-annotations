@@ -26,7 +26,8 @@ export default class OAuth2Authorizer extends Authorizer {
 
         let res;
         try {
-            res = await oauthService.refreshToken(session)
+            console.log(`refreshing ${session.access_token} at ${new Date().toLocaleTimeString()}`);
+            res = await oauthService.refreshToken(session);
         } catch (e) {
             throw e;
         }

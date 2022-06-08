@@ -31,15 +31,10 @@ export default class Authorizer {
     }
 
     async getSession() {
-        const session = await this.sessionStorage.get(this.sessionKey);
-        if (!this.sessionHistory.size) {
-            this.sessionHistory.add(session);
-        }
-        return session;
+        return await this.sessionStorage.get(this.sessionKey);
     }
 
     async storageSession(session) {
-        this.sessionHistory.add(session);
         await this.sessionStorage.set(this.sessionKey, session);
     }
 
@@ -59,7 +54,18 @@ export default class Authorizer {
     checkSession(request, session) {
         const header = request.headers["Authorization"] || request.headers["authorization"];
         const jwt = header ? (header.split(" ")[1] || "") : "";
-        return !this.sessionHistory.check(jwt);
+        const token = session.access_token || session.accessToken || session.token;
+        if (token === jwt) {
+            // request header token equal to invalid session token
+            return false;
+        }
+        // request time is too long , token may be refreshed few times
+        if (this.sessionHistory.size) {
+            if (this.sessionHistory.check(jwt)) {
+           //     return false;
+            }
+        }
+        return true;
     }
 
     checkResponse(response) {

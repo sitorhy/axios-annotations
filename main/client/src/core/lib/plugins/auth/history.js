@@ -14,11 +14,11 @@ export default class SessionHistory {
             return;
         }
         const {access_token, accessToken, token, refresh_token, refreshToken} = session;
-        this._history[this._position] = {
+        this._history[this._position] = Object.assign({}, session, {
             access_token: access_token || accessToken || token,
             refresh_token: refresh_token || refreshToken,
             invalid: false
-        };
+        });
         this._position++;
         this._position %= this._history.length;
         this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);

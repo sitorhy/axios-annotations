@@ -3,9 +3,16 @@ import PendingQueue from "./queue";
 export default function AuthorizationPlugin(authorizer) {
     return function (config) {
         let unauthorized = false;
+        let expiredSession = null;
         const queue = new PendingQueue(authorizer);
 
-        config.axios.interceptors.response.use(i => i, async function (e) {
+        config.axios.interceptors.response.use(i => {
+            if (expiredSession) {
+                authorizer.sessionHistory.add(expiredSession);
+                expiredSession = null;
+            }
+            return i;
+        }, async function (e) {
             const {response} = e;
             if (!authorizer.checkResponse(response)) {
                 if (!unauthorized) {
@@ -23,6 +30,7 @@ export default function AuthorizationPlugin(authorizer) {
                             queue.clear();
                         }
                     }
+                    expiredSession = session;
                     if (!authorizer.checkSession(e.config, session)) {
                         try {
                             await authorizer.storageSession(await authorizer.refreshSession(session));
