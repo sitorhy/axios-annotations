@@ -47,6 +47,13 @@ export default class TestService extends Service {
                 p2: data2
             });
     }
+    
+    path(id) {
+        return this.requestWith("GET", "/path3/{id}")
+            .send({
+              id: data1
+            });
+    }
 
     basic() {
         return this.request("POST", "/path3?p1=a&p2=b", {field1: 'c', field: 'd'},
