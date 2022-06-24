@@ -29,15 +29,15 @@ export default class Authorizer {
 
     sessionHistory: SessionHistory;
 
-    getSession(): Promise<Session>;
+    getSession(): Promise<Partial<Session>>;
 
     storageSession(session: Session): Promise<void>;
 
-    refreshSession(session: Session): AxiosPromise<Session>;
+    refreshSession(session: Session): Promise<Partial<Session>>;
 
-    withAuthentication(request: AxiosRequestConfig, session: Session): void;
+    withAuthentication(request: AxiosRequestConfig, session: Partial<Session>): void;
 
-    checkSession(request: AxiosRequestConfig, session: Session): boolean;
+    checkSession(request: AxiosRequestConfig, session: Partial<Session>): boolean;
 
     checkResponse(response: Response): boolean;
 
