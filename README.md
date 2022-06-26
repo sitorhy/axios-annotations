@@ -169,6 +169,15 @@ export default class TestService extends Service {
 }
 ```
 
+### Default Config
+All Services inject this by default.
+```javascript
+import {config} from "axios-annotations/core/config";
+
+config.host = "www.google.com";
+// ...
+```
+
 ## Plugin
 
 ### Custom Plugin
@@ -210,7 +219,7 @@ config.plugins = [
 <br>
 Basic Usage for Auth Plugin.
 <br>
-Take case of `Spring Security OAtuh2.0`。
+Take the case of `Spring Security OAtuh2.0`。
 ```javascript
 // DevServer Proxy Config
 const authCfg = new Config();
@@ -260,7 +269,7 @@ export default class OAuth2Service extends Service {
 ```
 Implement Authorizer.
 <br/>
-实现`Authorizer`类。
+实现`Authorizer`类。至少需要实现方法`refreshSession`、`onAuthorizedDenied`。如果需要调用`invalidateSession`，还需要重载`onSessionInvalidated`。
 ```javascript
 import Authorizer from "axios-annotations/plugins/auth/authorizer";
 
@@ -330,7 +339,7 @@ export default class RNSessionStorage extends SessionStorage {
     }
 }
 ```
-替换掉`Authorizer`存储器。
+替换掉`Authorizer`存储器，如果通过重载`getSession`和`storageSession`实现验证信息存储，可以忽略掉`sessionStorage`和`sessionKey`，此时`sessionStorage`和`sessionKey`不会被调用。
 ```javascript
 export default class OAuth2Authorizer extends Authorizer {
     constructor() {
@@ -468,6 +477,7 @@ import {authorizer} from "/path/config.js";
     });
   }  
   ```
++ storageSession(session: Session): Promise<void> `存储授权信息`
 + checkResponse(response:AxiosResponse) : boolean `检查授权是否过期`
   ```javascript
   class OAuth2Authorizer extends Authorizer {
@@ -486,10 +496,24 @@ import {authorizer} from "/path/config.js";
   }
   ``` 
 ## 运行环境
-部分运行环境，例如微信小程序，`axios`需要降级。<br>
-微信小程序：
+### 微信小程序
++ `axios`需要降级：
 ```shell
 npm install axios@0.21.0
 npm install axios-miniprogram-adapter
+``` 
++ 编译报错 `module is not defined`，
+在`app.js`头部补充声明：
+```javascript
+import RequestMapping from "axios-annotations/decorator/request-mapping";
+import GetMapping from "axios-annotations/decorator/get-mapping";
+import PostMapping from "axios-annotations/decorator/post-mapping";
+import PutMapping from "axios-annotations/decorator/put-mapping";
+import DeleteMapping from "axios-annotations/decorator/delete-mapping";
+import PatchMapping from "axios-annotations/decorator/patch-mapping";
+import RequestParam from "axios-annotations/decorator/request-param";
+import RequestBody from "axios-annotations/decorator/request-body";
+import RequestHeader from "axios-annotations/decorator/request-header";
+import RequestConfig from "axios-annotations/decorator/request-config";
 ```
-更新开发工具版本以支持装饰器语法。
++ 更新开发工具以支持装饰器语法。

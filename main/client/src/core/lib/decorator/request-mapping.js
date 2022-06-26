@@ -17,7 +17,7 @@ export default function RequestMapping(path, method = null) {
                                 path: p,
                                 body,
                                 config
-                            } = this.createRequestConfig(name, this.pathVariable(path, d), d, args, args);
+                            } = this.createRequestConfig(name, this.pathVariable(path || "", d), d, args, args);
                             this.request(method, p, body, config).then(resolve).catch(reject);
                         });
                     });
@@ -26,7 +26,7 @@ export default function RequestMapping(path, method = null) {
                         path: p,
                         body,
                         config
-                    } = this.createRequestConfig(name, this.pathVariable(path, data), data, args, args);
+                    } = this.createRequestConfig(name, this.pathVariable(path || "", data), data, args, args);
                     return this.request(method, p, body, config);
                 }
             };

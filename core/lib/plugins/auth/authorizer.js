@@ -62,7 +62,7 @@ export default class Authorizer {
         // request time is too long , token may be refreshed few times
         if (this.sessionHistory.size) {
             if (this.sessionHistory.check(jwt)) {
-           //     return false;
+                return false;
             }
         }
         return true;

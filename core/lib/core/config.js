@@ -8,6 +8,26 @@ export default class Config {
     _axios = axios.create();
     _plugins = [];
 
+    constructor(protocol = null, host = null, port = null, prefix = null, plugins = null) {
+        this.init(protocol, host, port, prefix, plugins);
+    }
+
+    init(protocol, host, port, prefix, plugins) {
+        this.port = port;
+        if (protocol) {
+            this.protocol = protocol;
+        }
+        if (host) {
+            this.host = host;
+        }
+        if (prefix) {
+            this.prefix = prefix;
+        }
+        if (Array.isArray(plugins)) {
+            this.plugins = plugins;
+        }
+    }
+
     get host() {
         return this._host;
     }

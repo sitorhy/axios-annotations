@@ -186,7 +186,7 @@ export default class Service {
     }
 
     pathVariable(path, data) {
-        let p = path;
+        let p = path || "";
         const matchers = p.match(/{\w+}/g);
         if (Array.isArray(matchers)) {
             matchers.forEach(m => {
@@ -198,11 +198,11 @@ export default class Service {
     }
 
     createRequestConfig(id, path, data, headerArgs = [], configArgs = []) {
-        const query = ConfigMapping.querystring(this._params[id], data);
+        const query = ConfigMapping.querystring(this._params[id], data || {});
         const body = ConfigMapping.body(this._params[id], data);
         const headers = ConfigMapping.requestHeaders(this._headers[id], headerArgs);
         const config = ConfigMapping.axiosConfig(this._configs[id], configArgs);
-        const p = `${path}${query ? '?' + query : ''}`;
+        const p = `${path}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
         Object.assign(config, {
             headers: Object.assign(headers, config.headers || null)
         });
@@ -276,7 +276,7 @@ export default class Service {
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);
                 const config = ConfigMapping.axiosConfig(_configs, [data]);
-                const p = `${this.pathVariable(path, data)}${query ? '?' + query : ''}`;
+                const p = `${this.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
                 Object.assign(config, {
                     headers: Object.assign(headers, config.headers || null)
                 });

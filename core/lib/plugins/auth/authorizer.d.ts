@@ -33,7 +33,7 @@ export default class Authorizer {
 
     storageSession(session: Session): Promise<void>;
 
-    refreshSession(session: Session): Promise<Partial<Session>>;
+    refreshSession(session: Session): Promise<Partial<Session>> | Promise<Record<string, any>> | Promise<any>;
 
     withAuthentication(request: AxiosRequestConfig, session: Partial<Session>): void;
 

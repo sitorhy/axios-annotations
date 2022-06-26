@@ -60,7 +60,7 @@ export default function AuthorizationPlugin(authorizer) {
                         throw e4;
                     }
                 } else {
-                    return await queue.push(e);
+                    return (await queue.push(e));
                 }
             } else {
                 throw e;
