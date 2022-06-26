@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const _global_configs = [];
+
 export default class Config {
     _host = "localhost";
     _port = 8080;
@@ -10,6 +12,15 @@ export default class Config {
 
     constructor(protocol = null, host = null, port = null, prefix = null, plugins = null) {
         this.init(protocol, host, port, prefix, plugins);
+    }
+
+    static forName(name) {
+        const c = _global_configs.find(i => i.name === name);
+        if (c) {
+            return c.config;
+        } else {
+            return null;
+        }
     }
 
     init(protocol, host, port, prefix, plugins) {
@@ -82,6 +93,24 @@ export default class Config {
 
     set plugins(value) {
         this._plugins = value;
+    }
+
+    register(name) {
+        const c = _global_configs.find(i => i.config === this);
+        if (c) {
+            c.name = name;
+        } else {
+            _global_configs.push({name, config: this});
+        }
+        return this;
+    }
+
+    unregister() {
+        const index = _global_configs.findIndex(i => i.config === this);
+        if (index >= 0) {
+            _global_configs.splice(index, 1);
+        }
+        return this;
     }
 }
 

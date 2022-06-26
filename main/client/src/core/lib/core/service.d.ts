@@ -11,6 +11,8 @@ export interface RequestController {
     config: (config: Partial<AxiosRequestConfig>) => RequestController;
 
     send: (data: Record<string, any>) => AxiosPromise<any>;
+
+    for: (name: string) => RequestController;
 }
 
 export default class Service {

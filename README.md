@@ -125,7 +125,8 @@ export default class TestService extends Service {
     @RequestBody("p2")
     @RequestHeader("Content-Type", "text/plain") 
     post(p1, str2) {
-        return {p1, p2: str2};
+        const defaultValue = { p1 : "0x123456" };
+        return Object.assign(defaultValue, {p1, p2: str2});
     }
 }
 ```
@@ -169,12 +170,13 @@ export default class TestService extends Service {
 }
 ```
 
-### Default Config
+### Default Config 
 All Services inject this by default.
 ```javascript
 import {config} from "axios-annotations/core/config";
 
-config.host = "www.google.com";
+config.host = "192.168.137.1";
+config.port = 8080;
 // ...
 ```
 

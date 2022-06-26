@@ -1,6 +1,6 @@
 import {isNullOrEmpty, normalizePath} from "./common";
 import URLSearchParamsParser from "./parser";
-import {config} from "./config";
+import Config, {config} from "./config";
 
 export const ConfigMapping = {
     requestHeaders(rules, args = []) {
@@ -85,7 +85,7 @@ export default class Service {
     _headers = {};
     _params = {};
     _configs = {};
-    _once = [];
+    _for = {};
 
     constructor(path = null) {
         if (!this._path && path) {
@@ -178,6 +178,12 @@ export default class Service {
         });
     }
 
+    for(id, name) {
+        Object.assign(this._for, {
+            [id]: name
+        });
+    }
+
     configs(id, options) {
         const root = this._configs || {};
         Object.assign(root, {
@@ -227,7 +233,14 @@ export default class Service {
         const _params = {};
         const _configs = [];
         const _headers = {};
+        let _thisConfig = this;
         const controller = {
+            for(name) {
+                const c = Config.forName(name);
+                if (c) {
+                    _thisConfig = c;
+                }
+            },
             param: (key, required = false) => {
                 const rule = _params[key] || {};
                 Object.assign(
@@ -276,11 +289,11 @@ export default class Service {
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);
                 const config = ConfigMapping.axiosConfig(_configs, [data]);
-                const p = `${this.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
+                const p = `${_thisConfig.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
                 Object.assign(config, {
                     headers: Object.assign(headers, config.headers || null)
                 });
-                return this.request(method, p, body, config);
+                return _thisConfig.request(method, p, body, config);
             }
         };
         return controller;

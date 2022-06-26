@@ -1,8 +1,10 @@
 import {AxiosInstance} from "axios";
 
-export type ConfigPluginHandler = (...args: any[]) => ((config: Config) => void);
-
 export default class Config {
+    constructor(protocol?: string, host?: string, port?: string, prefix?: string, plugins?: ((config: Config) => void)[]);
+
+    static forName(name: string): Config;
+
     host: string;
 
     port: number | null | string;
@@ -17,7 +19,11 @@ export default class Config {
 
     axios: AxiosInstance;
 
-    plugins: ConfigPluginHandler[];
+    plugins: ((config: Config) => void)[];
+
+    register(name: string): Config;
+
+    unregister(): Config;
 }
 
 export const config: Config;
