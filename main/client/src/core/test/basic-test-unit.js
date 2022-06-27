@@ -37,5 +37,16 @@ export default async function testUnit() {
         });
     }
 
+    try {
+        const res = await service.baiduHome();
+        Object.assign(results, {
+            "/pic": res.data
+        });
+    } catch (e) {
+        Object.assign(results, {
+            "/pic": e.message
+        });
+    }
+
     return results;
 }

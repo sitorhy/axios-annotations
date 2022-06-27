@@ -6,22 +6,27 @@ import RequestConfig from "../decorator/request-config";
 import RequestParam from "../decorator/request-param";
 import RequestBody from "../decorator/request-body";
 import RequestHeader from "../decorator/request-header";
+import Config from "../lib/core/config";
+import GetMapping from "../lib/decorator/get-mapping";
+import RequestWith from "../lib/decorator/request-with";
+
+new Config("http", "localhost", 8082, "/pic").register("picConfig");
 
 @RequestConfig(config)
 export default class BasicTestService extends Service {
 
-    @RequestMapping("/hello", "GET")
     @RequestParam("word", true)
+    @RequestMapping("/hello", "GET")
     hello(word) {
         return {
             word
         };
     }
 
-    @RequestMapping("/message", "POST")
-    @RequestParam("from", false)
     @RequestBody()
+    @RequestMapping("/message", "POST")
     @RequestHeader("Content-Type", "text/plain")
+    @RequestParam("from", false)
     postMessage(message, from) {
         return {
             body: message,
@@ -29,9 +34,9 @@ export default class BasicTestService extends Service {
         }
     }
 
-    @RequestMapping("/json", "POST")
-    @RequestHeader("Content-Type", "application/json")
     @RequestBody("body")
+    @RequestHeader("Content-Type", "application/json")
+    @RequestMapping("/json", "POST")
     postJSON(message) {
         return {
             body: {
@@ -39,5 +44,11 @@ export default class BasicTestService extends Service {
                 date: Date.now()
             }
         }
+    }
+
+    @GetMapping()
+    @RequestWith("picConfig")
+    baiduHome() {
+        return {};
     }
 }

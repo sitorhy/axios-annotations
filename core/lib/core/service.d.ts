@@ -12,7 +12,7 @@ export interface RequestController {
 
     send: (data: Record<string, any>) => AxiosPromise<any>;
 
-    for: (name: string) => RequestController;
+    with: (name: string) => RequestController;
 }
 
 export default class Service {

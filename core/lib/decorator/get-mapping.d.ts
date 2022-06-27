@@ -1,3 +1,3 @@
 import {AxiosPromise} from "axios";
 
-export default function GetMapping(path: string): (() => AxiosPromise<any>);
+export default function GetMapping(path?: string): (() => AxiosPromise<any>);

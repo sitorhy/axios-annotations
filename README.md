@@ -47,11 +47,11 @@ export default class TestService extends Service {
                 p2: data2
             });
     }
-    
+
     path(id) {
         return this.requestWith("GET", "/path3/{id}")
             .send({
-              id
+                id
             });
     }
 
@@ -98,7 +98,7 @@ export default class TestService extends Service {
 }
 ```
 
-`vue-cli`等脚手架已默认支持装饰器。 
+`vue-cli`等脚手架已默认支持装饰器。
 <br>
 方法只需要返回参数，并注解参数类型。
 
@@ -115,7 +115,7 @@ export default class TestService extends Service {
     @RequestMapping("/path", "GET")
     @RequestParam("p1", true)
     @RequestParam("p2", true)
-    @RequestParam("p3", false) 
+    @RequestParam("p3", false)
     get(p1, p2, p3) {
         return {p1, p2, p3};
     }
@@ -125,18 +125,20 @@ export default class TestService extends Service {
     @RequestBody("p2")
     @RequestHeader("Content-Type", "text/plain") 
     post(p1, str2) {
-        const defaultValue = { p1 : "0x123456" };
+        const defaultValue = {p1: "0x123456"};
         return Object.assign(defaultValue, {p1, p2: str2});
     }
 }
 ```
+
 如果不爽部分IDE的`non-promise inspection info`下划线，也可以给方法加上`async`。
 
-
 ### QueryString Encoding
+
 `key-values pair`转查询串算法，运行环境不支持`URLSearchParams`时使用默认算法，也可以自定义。
 <br>
 使用第三方库,`qs`,`querystring`,`url-search-params-polyfill`等，不同运行环境下可能有差异。
+
 ```javascript
 import qs from "qs";
 import URLSearchParamsParser from "axios-annotations/core/parser";
@@ -166,18 +168,52 @@ config.prefix = "/api";
 @RequestConfig(config)
 @RequestMapping("/test")
 export default class TestService extends Service {
-
+    @RequestMapping("/{id}", "GET") 
+    foo(id) {
+        return {id};
+    }
 }
 ```
 
-### Default Config 
+### Default Config
+
 All Services inject this by default.
+
 ```javascript
 import {config} from "axios-annotations/core/config";
 
 config.host = "192.168.137.1";
 config.port = 8080;
 // ...
+```
+
+### Register Config
+
+注册配置，用途：<br>
+
++ 不需要 `export` 导出，使用 `Config.forName(name:string)` 获取。
++ 部分特殊请求可能需要绕开自身配置，使用`@RequestWith(config)`注解方法，请求将使用指定配置进行构建。
+
+```javascript
+new Config("http", "localhost", 9999, "/auth").register("withoutPlugins");
+```
+
+```javascript
+@RequestMapping("/oauth") 
+class AuthService extends Service {
+    @PostMapping("/login")
+    @RequestWith("withoutPlugins") 
+    login() {
+        // http://localhost:9999/auth/login
+        return {usename: "0x123456", password: "123456"};
+    }
+    
+    @GetMapping("/foo")
+    bar() {
+        // http://localhost:8888/oauth/foo
+        return {};
+    }
+}
 ```
 
 ## Plugin
@@ -217,11 +253,13 @@ config.plugins = [
 ```
 
 ### <text style="color:red;">Auth Plugin</text>
+
 可选的内置插件。
 <br>
 Basic Usage for Auth Plugin.
 <br>
 Take the case of `Spring Security OAtuh2.0`。
+
 ```javascript
 // DevServer Proxy Config
 const authCfg = new Config();
@@ -240,7 +278,7 @@ export default class OAuth2Service extends Service {
     @RequestParam("client_secret", false)
     @RequestParam("username", false)
     @RequestParam("password", false)
-    @RequestBody()
+    @RequestBody() 
     token() {
         return {
             grant_type: "password",
@@ -257,7 +295,7 @@ export default class OAuth2Service extends Service {
     @RequestParam("refresh_token", true)
     @RequestParam("scope", false)
     @RequestParam("client_id", true)
-    @RequestParam("client_secret", true)
+    @RequestParam("client_secret", true) 
     refreshToken(session) {
         return {
             grant_type: "refresh_token",
@@ -269,9 +307,11 @@ export default class OAuth2Service extends Service {
     }
 }
 ```
+
 Implement Authorizer.
 <br/>
 实现`Authorizer`类。至少需要实现方法`refreshSession`、`onAuthorizedDenied`。如果需要调用`invalidateSession`，还需要重载`onSessionInvalidated`。
+
 ```javascript
 import Authorizer from "axios-annotations/plugins/auth/authorizer";
 
@@ -286,7 +326,7 @@ export default class OAuth2Authorizer extends Authorizer {
         } catch (e) {
             throw e;
         }
-        if(!res || !res.data){
+        if (!res || !res.data) {
             throw new Error("Seession Unknow Error");
         }
         const nextSession = res.data;
@@ -300,11 +340,11 @@ export default class OAuth2Authorizer extends Authorizer {
         // try logout, clean session.
         // await this.invalidateSession();
         // return;
-        
+
         const res = await new OAuth2Service().token();
         if (res && res.data) {
             const nextSession = res.data;
-            
+
             // save session manually if try re-login
             await this.storageSession(nextSession);
             return nextSession;
@@ -319,9 +359,11 @@ export default class OAuth2Authorizer extends Authorizer {
     }
 }
 ```
+
 认证信息默认存储在`sessionStorage`。
 <br>
 Implement SessionStorage if store mode changed.
+
 ```javascript
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SessionStorage from "axios-annotations/plugins/auth/storage";
@@ -341,7 +383,10 @@ export default class RNSessionStorage extends SessionStorage {
     }
 }
 ```
-替换掉`Authorizer`存储器，如果通过重载`getSession`和`storageSession`实现验证信息存储，可以忽略掉`sessionStorage`和`sessionKey`，此时`sessionStorage`和`sessionKey`不会被调用。
+
+替换掉`Authorizer`存储器，如果通过重载`getSession`和`storageSession`实现验证信息存储，可以忽略掉`sessionStorage`和`sessionKey`，此时`sessionStorage`
+和`sessionKey`不会被调用。
+
 ```javascript
 export default class OAuth2Authorizer extends Authorizer {
     constructor() {
@@ -350,7 +395,9 @@ export default class OAuth2Authorizer extends Authorizer {
     }
 }
 ```
+
 在默认配置上设置插件。
+
 ```javascript
 // config.js
 import AuthorizationPlugin from "axios-annotations/plugins/auth/index";
@@ -362,7 +409,7 @@ config.port = 8080;
 config.protocol = "http";
 config.prefix = "/api";
 
-const _authorizer =  new OAuth2Authorizer();
+const _authorizer = new OAuth2Authorizer();
 
 config.plugins = [
     AuthorizationPlugin(_authorizer)
@@ -379,9 +426,11 @@ export default class TestService extends Service {
     // ...
 }
 ```
+
 首次登录，需要手动保存认证信息。
 <br>
 but you may store grant information yourself when the first time login succeed.
+
 ```javascript
 import {authorizer} from "/path/config.js";
 
@@ -397,38 +446,54 @@ import {authorizer} from "/path/config.js";
 ```
 
 ## API
+
 ### Service
+
 #### request(method, path, data?, config?): AxiosPromise
+
 + method : string  `GET / POST / DELETE...`
 + path : string `相对路径`
 + data : Object `请求体`
 + config : Object `AxiosRequestConfig`
 
 #### requestWith(method, path): RequestController
+
 + method : string `GET /POST / DELETE...`
 + path : string `相对路径`
 
 > #### RequestController
 > + param: (key, required?) : RequestController
->   + key : string  `标记查询串参数`
+    >
++ key : string  `标记查询串参数`
 >   + required : boolean  `默认false，空字符串，null，undefined 将忽略`
 > + header: (header, header) : RequestController
->   + header : string `url 附加参数键值`
+    >
++ header : string `url 附加参数键值`
 >   + header : string | function `字符串，或者接收 send 方法参数的函数，该函数应返回合法值。`
 >
 > + body: (key) : RequestController
->   + key : string `标记参数中请求体`
+    >
++ key : string `标记参数中请求体`
 >
 > + config: (cfg) : RequestController
->   + cfg : `AxiosRequestConfig`
+    >
++ cfg : `AxiosRequestConfig`
 >
 > + send: (data) : AxiosPromise<any>
->   + data : object `参数键值对` 
+    >
++ data : object `参数键值对`
+>
+> + with: (name) : RequestController
+    >
++ name : string `config name : 已注册配置名称`
 
 ### Decorators
+
 #### RequestMapping(path, method?)
+
 + path : string `相对路径`
 + method : string  `默认GET，注解服务类时忽略该参数`
+
 > 注解方法时，可以使用简化形式：
 > <br>
 > GetMapping(path)
@@ -442,12 +507,15 @@ import {authorizer} from "/path/config.js";
 > DeleteMapping(path)
 
 #### RequestParam(name, required?)
+
 + name : string `方法返回值属性`
 + required : boolean  `是否必要参数`
 
 #### RequestHeader(header, value)
+
 + header : string `请求头`
-+ value : string  `字符串或函数` 
++ value : string  `字符串或函数`
+
 > 使用函数。
 > ```javascript
 >    class TestService extends Service {
@@ -462,10 +530,11 @@ import {authorizer} from "/path/config.js";
 >  ```
 
 #### RequestBody(name)
+
 + name : string `方法返回值属性，默认为 body`
 
-
 ### Authorizer (Optional Plugin)
+
 + sessionKey : string `键值名称`
     ```javascript
     authorizer.sessionKey = "$_SESSION"; // default value
@@ -497,15 +566,20 @@ import {authorizer} from "/path/config.js";
     } 
   }
   ``` 
+
 ## 运行环境
+
 ### 微信小程序
+
 + `axios`需要降级：
+
 ```shell
 npm install axios@0.21.0
 npm install axios-miniprogram-adapter
 ``` 
-+ 编译报错 `module is not defined`，
-在`app.js`头部补充声明：
+
++ 编译报错 `module is not defined`， 在`app.js`头部补充声明：
+
 ```javascript
 import RequestMapping from "axios-annotations/decorator/request-mapping";
 import GetMapping from "axios-annotations/decorator/get-mapping";
@@ -518,4 +592,5 @@ import RequestBody from "axios-annotations/decorator/request-body";
 import RequestHeader from "axios-annotations/decorator/request-header";
 import RequestConfig from "axios-annotations/decorator/request-config";
 ```
+
 + 更新开发工具以支持装饰器语法。

@@ -235,7 +235,7 @@ export default class Service {
         const _headers = {};
         let _thisConfig = this;
         const controller = {
-            for(name) {
+            with(name) {
                 const c = Config.forName(name);
                 if (c) {
                     _thisConfig = c;

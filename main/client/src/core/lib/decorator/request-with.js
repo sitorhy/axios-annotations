@@ -1,9 +1,9 @@
-export default function RequestWith(cname) {
+export default function RequestWith(registration) {
     return function (target, name, descriptor) {
         if (descriptor) {
             const fn = descriptor.value;
             descriptor.value = function () {
-                this.for(name, cname);
+                this.for(name, registration);
                 return fn.apply(this, arguments);
             };
         }

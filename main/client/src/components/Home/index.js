@@ -235,7 +235,7 @@ class Home extends React.Component {
                                         {i}
                                     </td>
                                     <td>
-                                        {basic.result[i]}
+                                        <div dangerouslySetInnerHTML={{__html: basic.result[i]}}></div>
                                     </td>
                                 </tr>
                             })

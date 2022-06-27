@@ -12,6 +12,14 @@ module.exports = merge(require("./webpack.config"), {
                 pathRewrite: {
                     '^/api': ''
                 }
+            },
+            "/pic": {
+                secure: false,
+                target: "http://localhost:8888/get-image",
+                changeOrigin: false,
+                pathRewrite: {
+                    '^/pic': ''
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 import {AxiosInstance} from "axios";
 
 export default class Config {
-    constructor(protocol?: string, host?: string, port?: string, prefix?: string, plugins?: ((config: Config) => void)[]);
+    constructor(protocol?: string, host?: string, port?: number, prefix?: string, plugins?: ((config: Config) => void)[]);
 
     static forName(name: string): Config;
 
