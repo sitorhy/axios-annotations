@@ -10,9 +10,9 @@ export interface RequestController {
 
     config: (config: Partial<AxiosRequestConfig>) => RequestController;
 
-    send: (data: Record<string, any>) => AxiosPromise<any>;
+    send: (data?: Record<string, any>) => AxiosPromise<any>;
 
-    for: (name: string) => RequestController;
+    with: (registration: string) => RequestController;
 }
 
 export default class Service {
@@ -24,5 +24,5 @@ export default class Service {
 
     request(method: string, path: string, data?: any, config?: Partial<AxiosRequestConfig>): AxiosPromise<any>;
 
-    requestWith(method: string, path: string): RequestController;
+    requestWith(method: string, path?: string): RequestController;
 }

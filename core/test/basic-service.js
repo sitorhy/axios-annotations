@@ -13,6 +13,7 @@ import RequestWith from "../lib/decorator/request-with";
 new Config("http", "localhost", 8082, "/pic").register("picConfig");
 
 @RequestConfig(config)
+@RequestMapping("")
 export default class BasicTestService extends Service {
 
     @RequestParam("word", true)
@@ -48,7 +49,7 @@ export default class BasicTestService extends Service {
 
     @GetMapping()
     @RequestWith("picConfig")
-    baiduHome() {
-        return {};
+    pic() {
+        return null;
     }
 }

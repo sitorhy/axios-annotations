@@ -38,7 +38,7 @@ export default async function testUnit() {
     }
 
     try {
-        const res = await service.baiduHome();
+        const res = await service.pic();
         Object.assign(results, {
             "/pic": res.data
         });

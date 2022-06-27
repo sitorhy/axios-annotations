@@ -1,4 +1,4 @@
-import {isNullOrEmpty, normalizePath} from "./common";
+import {forward, isNullOrEmpty, normalizePath} from "./common";
 import URLSearchParamsParser from "./parser";
 import Config, {config} from "./config";
 
@@ -31,6 +31,9 @@ export const ConfigMapping = {
     },
 
     querystring(rules, data) {
+        if (!data) {
+            return "";
+        }
         if (rules) {
             const encoder = URLSearchParamsParser.decode(data);
             for (const key in data) {
@@ -178,9 +181,12 @@ export default class Service {
         });
     }
 
-    for(id, name) {
+    for(id, registration) {
+        if (registration === undefined) {
+            return this._for[id];
+        }
         Object.assign(this._for, {
-            [id]: name
+            [id]: registration
         });
     }
 
@@ -204,7 +210,7 @@ export default class Service {
     }
 
     createRequestConfig(id, path, data, headerArgs = [], configArgs = []) {
-        const query = ConfigMapping.querystring(this._params[id], data || {});
+        const query = ConfigMapping.querystring(this._params[id], data);
         const body = ConfigMapping.body(this._params[id], data);
         const headers = ConfigMapping.requestHeaders(this._headers[id], headerArgs);
         const config = ConfigMapping.axiosConfig(this._configs[id], configArgs);
@@ -215,7 +221,8 @@ export default class Service {
         return {
             path: p,
             body,
-            config
+            config,
+            query
         }
     }
 
@@ -229,17 +236,18 @@ export default class Service {
         ));
     }
 
-    requestWith(method, path) {
+    requestWith(method, path = "") {
         const _params = {};
         const _configs = [];
         const _headers = {};
-        let _thisConfig = this;
+        let _withConfig = this;
         const controller = {
-            with(name) {
-                const c = Config.forName(name);
+            with(registration) {
+                const c = Config.forName(registration);
                 if (c) {
-                    _thisConfig = c;
+                    _withConfig = c;
                 }
+                return controller;
             },
             param: (key, required = false) => {
                 const rule = _params[key] || {};
@@ -289,11 +297,15 @@ export default class Service {
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);
                 const config = ConfigMapping.axiosConfig(_configs, [data]);
-                const p = `${_thisConfig.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
                 Object.assign(config, {
                     headers: Object.assign(headers, config.headers || null)
                 });
-                return _thisConfig.request(method, p, body, config);
+                if (_withConfig) {
+                    return forward(_withConfig.axios, _withConfig.origin, _withConfig.prefix, this.path, path, method, query, body, config);
+                } else {
+                    const p = `${this.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
+                    return this.request(method, p, body, config);
+                }
             }
         };
         return controller;

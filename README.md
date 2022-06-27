@@ -199,18 +199,19 @@ new Config("http", "localhost", 9999, "/auth").register("withoutPlugins");
 ```
 
 ```javascript
+@RequestConfig(new Config("http", "localhost", 8888, "/prefix"))
 @RequestMapping("/oauth") 
 class AuthService extends Service {
     @PostMapping("/login")
     @RequestWith("withoutPlugins") 
     login() {
-        // http://localhost:9999/auth/login
+        // http://localhost:9999/auth/oauth/login
         return {usename: "0x123456", password: "123456"};
     }
     
     @GetMapping("/foo")
     bar() {
-        // http://localhost:8888/oauth/foo
+        // http://localhost:8888/prefix/oauth/foo
         return {};
     }
 }

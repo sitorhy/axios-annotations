@@ -1,3 +1,3 @@
 import {AxiosPromise} from "axios";
 
-export default function RequestWith(config: string): (() => AxiosPromise<any>);
+export default function RequestWith(registration: string): (() => AxiosPromise<any>);
