@@ -10,9 +10,9 @@ export function forward(axios, origin, prefix1, prefix2, path, method, query, bo
     let url = `${origin}` + normalizePath(`/${prefix1}/${prefix2}/${path}`);
     if (query) {
         if (url.lastIndexOf("?") >= 0) {
-            url = "&" + query;
+            url += "&" + query;
         } else {
-            url = "?" + query;
+            url += "?" + query;
         }
     }
     return axios.request(Object.assign({
