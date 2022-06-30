@@ -464,29 +464,20 @@ import {authorizer} from "/path/config.js";
 
 > #### RequestController
 > + param: (key, required?) : RequestController
-    >
-+ key : string  `标记查询串参数`
+>   + key : string  `标记查询串参数`
 >   + required : boolean  `默认false，空字符串，null，undefined 将忽略`
 > + header: (header, header) : RequestController
-    >
-+ header : string `url 附加参数键值`
+>   + header : string `url 附加参数键值`
 >   + header : string | function `字符串，或者接收 send 方法参数的函数，该函数应返回合法值。`
->
 > + body: (key) : RequestController
-    >
-+ key : string `标记参数中请求体`
->
+>   + key : string `标记参数中请求体`
 > + config: (cfg) : RequestController
-    >
-+ cfg : `AxiosRequestConfig`
+>   + cfg : `AxiosRequestConfig`
 >
 > + send: (data) : AxiosPromise<any>
-    >
-+ data : object `参数键值对`
->
+>   + data : object `参数键值对`
 > + with: (name) : RequestController
-    >
-+ name : string `config name : 已注册配置名称`
+>   + name : string `config name : 已注册配置名称`
 
 ### Decorators
 
