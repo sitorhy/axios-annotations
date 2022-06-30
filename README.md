@@ -579,19 +579,21 @@ npm install axios@0.21.0
 npm install axios-miniprogram-adapter
 ``` 
 
-+ 编译报错 `module is not defined`， 在`app.js`头部补充声明：
++ 编译报错 `module is not defined`， 在`app.js`头部补充缺失组件的声明：
 
 ```javascript
-import RequestMapping from "axios-annotations/decorator/request-mapping";
-import GetMapping from "axios-annotations/decorator/get-mapping";
-import PostMapping from "axios-annotations/decorator/post-mapping";
-import PutMapping from "axios-annotations/decorator/put-mapping";
-import DeleteMapping from "axios-annotations/decorator/delete-mapping";
-import PatchMapping from "axios-annotations/decorator/patch-mapping";
-import RequestParam from "axios-annotations/decorator/request-param";
-import RequestBody from "axios-annotations/decorator/request-body";
-import RequestHeader from "axios-annotations/decorator/request-header";
-import RequestConfig from "axios-annotations/decorator/request-config";
+import "axios-annotations/core/service";
+import "axios-annotations/decorator/request-mapping";
+import "axios-annotations/decorator/get-mapping";
+import "axios-annotations/decorator/post-mapping";
+import "axios-annotations/decorator/put-mapping";
+import "axios-annotations/decorator/delete-mapping";
+import "axios-annotations/decorator/patch-mapping";
+import "axios-annotations/decorator/request-param";
+import "axios-annotations/decorator/request-body";
+import "axios-annotations/decorator/request-header";
+import "axios-annotations/decorator/request-config";
+import "axios-annotations/decorator/request-with";
 ```
 
 + 更新开发工具以支持装饰器语法。
