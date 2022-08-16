@@ -13,6 +13,9 @@ export default function RequestMapping(path, method = null) {
 
             descriptor.value = function (...args) {
                 const data = fn.apply(this, args) || {};
+                if (typeof this.for !== "function") {
+                    throw new Error("Make sure your service inherited \"core/Service\".");
+                }
                 const registration = this.for(name);
                 const withConfig = registration ? Config.forName(registration) : null;
                 if (data && Object.hasOwnProperty.call(data, "then") && typeof data.then === "function") {
