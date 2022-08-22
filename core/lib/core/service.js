@@ -240,7 +240,7 @@ export default class Service {
         const _params = {};
         const _configs = [];
         const _headers = {};
-        let _withConfig = this;
+        let _withConfig = this.config;
         const controller = {
             with(registration) {
                 const c = Config.forName(registration);
