@@ -109,6 +109,7 @@ import RequestParam from "axios-annotations/decorator/request-param";
 import RequestMapping from "axios-annotations/decorator/request-mapping";
 import RequestBody from "axios-annotations/decorator/request-body";
 import RequestHeader from "axios-annotations/decorator/request-header";
+import IgnoreResidualParams from "axios-annotations/decorator/ignore-residual-params";
 
 @RequestMapping("/api")
 export default class TestService extends Service {
@@ -123,10 +124,20 @@ export default class TestService extends Service {
     @RequestMapping("/path2", "POST")
     @RequestParam("p1", true)
     @RequestBody("p2")
-    @RequestHeader("Content-Type", "text/plain") 
+    @RequestHeader("Content-Type", "text/plain")
     post(p1, str2) {
         const defaultValue = {p1: "0x123456"};
         return Object.assign(defaultValue, {p1, p2: str2});
+    }
+
+    @RequestMapping("/path", "GET")
+    @IgnoreResidualParams()
+    getDefault() {
+        return {
+            p1: "p1",
+            p2: "p2",
+            p3: "p3"
+        }
     }
 }
 ```
@@ -525,6 +536,41 @@ import {authorizer} from "/path/config.js";
 
 + name : string `方法返回值属性，默认为 body`
 
+#### IgnoreResidualParams(ignore?)
++ ignore : boolean `拼接 QueryString 时是否忽略没有声明的参数`
+
+```javascript
+// GET /foo?p1=p1&p2=p2&p3=p3
+class TestService extends Service {
+    @RequestMapping("/foo", "GET")
+    @RequestParam("p1", true)
+    foo(token) {
+        return {
+            p1: "p1",
+            p2: "p2", 
+            p3: "p3"
+        };
+    }
+}
+```
+该注解对请求体没有影响。
+```javascript
+// GET /foo?p1=p1
+class TestService extends Service {
+    @RequestMapping("/foo", "GET")
+    @RequestParam("p1", true)
+    @IgnoreResidualParams()
+    foo(token) {
+        return {
+            p1: "p1",
+            p2: "p2", 
+            p3: "p3"
+        };
+    }
+}
+```
+
+
 ### Authorizer (Optional Plugin)
 
 + sessionKey : string `键值名称`
@@ -585,6 +631,7 @@ import "axios-annotations/decorator/request-body";
 import "axios-annotations/decorator/request-header";
 import "axios-annotations/decorator/request-config";
 import "axios-annotations/decorator/request-with";
+import "axios-annotations/decorator/ignore-residual-params";
 ```
 
 + 更新开发工具以支持装饰器语法。

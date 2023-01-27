@@ -2,6 +2,8 @@ import Config from "./config";
 import {AxiosPromise, AxiosRequestConfig} from "axios";
 
 export interface RequestController {
+    ignoreResidualParams: (ignore?: boolean) => RequestController;
+
     param: (key: string, required?: boolean) => RequestController;
 
     header: (header: string, value: string | ((...args: any[]) => string)) => RequestController;

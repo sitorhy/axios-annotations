@@ -30,7 +30,7 @@ export const ConfigMapping = {
         return config;
     },
 
-    querystring(rules, data) {
+    querystring(features, rules, data) {
         if (!data) {
             return "";
         }
@@ -58,14 +58,21 @@ export const ConfigMapping = {
                         URLSearchParamsParser.delete(encoder, key);
                     }
                 } else {
-                    URLSearchParamsParser.delete(encoder, key);
+                    if (features && features.ignoreResidualParams === true) {
+                        URLSearchParamsParser.delete(encoder, key);
+                    }
                 }
             }
 
             return URLSearchParamsParser.encode(encoder);
+        } else {
+            if (features && features.ignoreResidualParams === true) {
+                return "";
+            } else {
+                const encoder = URLSearchParamsParser.decode(data);
+                return URLSearchParamsParser.encode(encoder);
+            }
         }
-
-        return "";
     },
 
     body(rules, data) {
@@ -89,6 +96,7 @@ export default class Service {
     _params = {};
     _configs = {};
     _for = {};
+    _features = {}
 
     constructor(path = null) {
         if (!this._path && path) {
@@ -182,11 +190,20 @@ export default class Service {
     }
 
     for(id, registration) {
-        if (registration === undefined) {
+        if (arguments.length === 1) {
             return this._for[id];
         }
         Object.assign(this._for, {
             [id]: registration
+        });
+    }
+
+    features(id, options) {
+        if (arguments.length === 1) {
+            return this._features[id];
+        }
+        Object.assign(this._features, {
+            [id]: options
         });
     }
 
@@ -210,7 +227,7 @@ export default class Service {
     }
 
     createRequestConfig(id, path, data, headerArgs = [], configArgs = []) {
-        const query = ConfigMapping.querystring(this._params[id], data);
+        const query = ConfigMapping.querystring(this._features[id], this._params[id], data);
         const body = ConfigMapping.body(this._params[id], data);
         const headers = ConfigMapping.requestHeaders(this._headers[id], headerArgs);
         const config = ConfigMapping.axiosConfig(this._configs[id], configArgs);
@@ -240,6 +257,7 @@ export default class Service {
         const _params = {};
         const _configs = [];
         const _headers = {};
+        const _features = {};
         let _withConfig = this.config;
         const controller = {
             with(registration) {
@@ -260,6 +278,12 @@ export default class Service {
                         )
                     }
                 );
+                return controller;
+            },
+            ignoreResidualParams(ignore = true) {
+                Object.assign(_features, {
+                    ignoreResidualParams: ignore === true
+                });
                 return controller;
             },
             header: (header, value) => {
@@ -293,7 +317,7 @@ export default class Service {
                 return controller;
             },
             send: (data = {}) => {
-                const query = ConfigMapping.querystring(_params, data);
+                const query = ConfigMapping.querystring(_features, _params, data);
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);
                 const config = ConfigMapping.axiosConfig(_configs, [data]);
