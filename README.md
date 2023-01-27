@@ -131,7 +131,7 @@ export default class TestService extends Service {
     }
 
     @RequestMapping("/path", "GET")
-    @IgnoreResidualParams()
+    @IgnoreResidualParams(false)
     getDefault() {
         return {
             p1: "p1",
