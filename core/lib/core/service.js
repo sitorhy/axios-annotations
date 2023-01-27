@@ -64,6 +64,13 @@ export const ConfigMapping = {
                 }
             }
 
+            for (const key in rules) {
+                const rule = rules[key];
+                if (rule && !rule.body && rule.required && !URLSearchParamsParser.has(encoder, key)) {
+                    URLSearchParamsParser.append(encoder, key, "");
+                }
+            }
+
             return URLSearchParamsParser.encode(encoder);
         } else {
             if (features && features.ignoreResidualParams === true) {

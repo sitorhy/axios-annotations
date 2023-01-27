@@ -1,6 +1,6 @@
 {
   "name": "axios-annotations",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "HTTP client library uses Axios without Typescript.",
   "main": "gulpfile.js",
   "scripts": {

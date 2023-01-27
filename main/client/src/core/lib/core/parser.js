@@ -3,6 +3,7 @@ import {isNullOrEmpty} from "./common";
 const URLSearchParamsParser = {
     encode: function (encoder) {
         if (typeof URLSearchParams === "undefined") {
+            // URLSearchParams 将空值 null 转为 "null"
             return Object.entries(encoder).reduce((arr, [key, value = undefined]) => {
                 if (Array.isArray(value)) {
                     value.forEach(i => {
@@ -28,7 +29,7 @@ const URLSearchParamsParser = {
 
     has(encoder, key) {
         if (typeof URLSearchParams === "undefined") {
-            return Object.hasOwnProperty.call(encoder, key);
+            return (key in encoder);
         } else {
             return encoder.has(key);
         }

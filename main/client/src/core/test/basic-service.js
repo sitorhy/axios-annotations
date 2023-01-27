@@ -22,7 +22,7 @@ export default class BasicTestService extends Service {
     @IgnoreResidualParams()
     hello(word) {
         return {
-            word: "恭喜发财",
+            word,
             param1: "附加参数1",
             param2: "附加参数2"
         };
