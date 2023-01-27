@@ -176,7 +176,5 @@ $RECYCLE.BIN/
 /pages/package.json
 *LICENSE.txt
 /.idea
-/yarn.lock
 /pages/test
 /main/vue/yarn.lock
-/package-lock.json
