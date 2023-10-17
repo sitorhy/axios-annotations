@@ -5,7 +5,7 @@
   "description": "react for ie8.",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --config ./config/development.config.js",
+    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=development webpack-dev-server --config ./config/development.config.js",
     "build": "cross-env GENERATE_SOURCEMAP=true NODE_ENV=production webpack --progress --config ./config/production.config.js",
     "watch": "cross-env GENERATE_SOURCEMAP=true NODE_ENV=production webpack --progress --watch --config ./config/production.config.js"
   },
