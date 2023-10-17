@@ -205,6 +205,13 @@ export default class Service {
         });
     }
 
+    abort(id, abortController) {
+        const cfg = Object.assign(this.features(id) || {}, {
+            abortController
+        });
+        this.features(id, cfg);
+    }
+
     features(id, options) {
         if (arguments.length === 1) {
             return this._features[id];
@@ -239,6 +246,22 @@ export default class Service {
         const headers = ConfigMapping.requestHeaders(this._headers[id], headerArgs);
         const config = ConfigMapping.axiosConfig(this._configs[id], configArgs);
         const p = `${path}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
+        if (this._features && this._features[id] && this._features[id].abortController) {
+            const abortController = this._features[id].abortController;
+            let __abortControllerInst;
+            if (typeof abortController === "function") {
+                __abortControllerInst = abortController.apply(undefined, configArgs);
+            } else {
+                __abortControllerInst = abortController;
+            }
+            if (__abortControllerInst) {
+                if (__abortControllerInst.source) {
+                    config.cancelToken = __abortControllerInst.source.token;
+                } else {
+                    config.signal = __abortControllerInst.signal;
+                }
+            }
+        }
         Object.assign(config, {
             headers: Object.assign(headers, config.headers || null)
         });
@@ -287,6 +310,12 @@ export default class Service {
                 );
                 return controller;
             },
+            abort(abortController) {
+                Object.assign(_features, {
+                    abortController
+                });
+                return controller;
+            },
             ignoreResidualParams(ignore = true) {
                 Object.assign(_features, {
                     ignoreResidualParams: ignore === true
@@ -328,9 +357,25 @@ export default class Service {
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);
                 const config = ConfigMapping.axiosConfig(_configs, [data]);
+                const abortController = _features.abortController;
                 Object.assign(config, {
                     headers: Object.assign(headers, config.headers || null)
                 });
+                if (abortController) {
+                    let __abortControllerInst;
+                    if (typeof abortController === "function") {
+                        __abortControllerInst = abortController.apply(undefined, [data]);
+                    } else {
+                        __abortControllerInst = abortController;
+                    }
+                    if (__abortControllerInst) {
+                        if (__abortControllerInst.source) {
+                            config.cancelToken = __abortControllerInst.source.token;
+                        } else {
+                            config.signal = __abortControllerInst.signal;
+                        }
+                    }
+                }
                 if (_withConfig) {
                     return forward(_withConfig.axios, _withConfig.origin, _withConfig.prefix, this.path, path, method, query, body, config);
                 } else {

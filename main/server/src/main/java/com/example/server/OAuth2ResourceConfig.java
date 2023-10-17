@@ -55,7 +55,7 @@ public class OAuth2ResourceConfig extends ResourceServerConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/oauth/*", "/test/*", "/get-image/**").permitAll()
+                .antMatchers("/oauth/*", "/test/*", "/get-image/**", "/heavy/*").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated();
     }

@@ -228,6 +228,114 @@ class AuthService extends Service {
 }
 ```
 
+## Abort
+注意：小程序端可能没有实现请求取消接口。
+### 静态注入
+
+```javascript
+const controller = new AbortController();
+// ...
+class AuthService extends Service {
+    // ...
+    @RequestConfig({
+      signal: controller.signal
+    })
+    bar() {
+        // ....
+        return {};
+    }
+}
+
+// 取消请求
+controller.abort()
+```
+
+或者：
+
+```javascript
+const controller = new AbortController();
+
+// ...
+class AuthService extends Service {
+  // ...
+  @AbortSource(controller) bar() {
+    // ....
+    return {};
+  }
+}
+
+new AuthService().bar().then(() => {
+
+}).catch(e => {
+  console.log(axios.isCancel(e));
+});
+
+// 取消请求
+controller.abort()
+```
+
+兼容旧版 `CancelToken` `(deprecated)`:
+```javascript
+const CancelToken = axios.CancelToken;
+
+const controller = new AbortControllerAdapter(CancelToken);
+
+// ...
+class AuthService extends Service {
+  // ...
+  @AbortSource(controller) bar() {
+    // ....
+    return {};
+  }
+}
+
+
+new AuthService().bar().then(() => {
+
+}).catch(e => {
+  console.log(axios.isCancel(e));
+});
+
+// 取消请求
+controller.abort("cancel test")
+```
+
+### 动态注入中断源
+不确定中断时机。
+```javascript
+// 自定义中断逻辑
+class AbortSourceManager {
+    // ...
+    
+    create () {
+        return AbortController();
+    }
+    
+    abortAll () {
+        // ...
+    }
+}
+
+const manager = new AbortSourceManager();
+
+// ...
+class AuthService extends Service {
+    // ...
+    @RequestConfig((...args)=>{
+        const controller = manager.create();
+        return {
+          // ...
+          signal: controller.signal
+        };
+    })
+    bar() {
+        // ....
+        return {};
+    }
+}
+```
+
+
 ## Plugin
 
 ### Custom Plugin
@@ -538,6 +646,10 @@ import {authorizer} from "/path/config.js";
 
 #### IgnoreResidualParams(ignore?)
 + ignore : boolean `拼接 QueryString 时是否忽略没有声明的参数`
+
+#### RequestConfig(config)
++ axiosConfig: Config - class decorator，注解类，传入框架配置对象，注意不是 AxiosConfig。
++ axiosConfig: AxiosConfig | (...args:any[]) => AxiosConfig - method decorator，注解方法，注解方法时可根据请求参数构造配置对象。
 
 ```javascript
 // GET /foo?p1=p1&p2=p2&p3=p3

@@ -6,6 +6,8 @@ import testUnit2 from "../../core/test/auth-test-unit";
 import {authorizer} from "../../core/test/auth-config";
 import OAuth2Service from "../../core/test/oauth2-service";
 import AuthTestService from "../../core/test/auth-service";
+import HeavyTaskService, {testAbortController, AbortManager} from "../../core/test/heavy-service";
+import axios from "axios";
 
 function genRandom(min, max) {
     return (Math.random() * (max - min + 1) | 0) + min;
@@ -196,6 +198,48 @@ class Home extends React.Component {
         }
     }
 
+    heavyTask() {
+        new HeavyTaskService().getTimeByAnnotation().then(data => {
+            alert(data.data);
+        });
+    }
+
+    staticHeavyAbort() {
+        new HeavyTaskService().getTimeByAnnotation().then(data => {
+            alert(data.data);
+        }).catch(e => {
+            console.log('isCancel = ' + axios.isCancel(e));
+            alert(testAbortController.signal.reason);
+        });
+        setTimeout(() => {
+            testAbortController.abort("3s后中断测试");
+        }, 3000);
+    }
+
+    dynamicHeavyAbort() {
+        new HeavyTaskService().getTimeByFunction().then(data => {
+            alert(data.data);
+        }).catch(e => {
+            console.log('isCancel = ' + axios.isCancel(e));
+            alert(AbortManager.get().signal.reason);
+        });
+        setTimeout(() => {
+            AbortManager.get().abort("4s后中断测试");
+        }, 4000);
+    }
+
+    cancelTokenAbort() {
+        new HeavyTaskService().cancelTokenTest().then(data => {
+            alert(data.data);
+        }).catch(e => {
+            console.log('isCancel = ' + axios.isCancel(e));
+            alert(AbortManager.getCancelToken().signal.reason);
+        });
+        setTimeout(() => {
+            AbortManager.getCancelToken().abort("2s后中断测试");
+        }, 2000);
+    }
+
     render() {
         const {
             basic,
@@ -242,6 +286,22 @@ class Home extends React.Component {
                         }
                         </tbody>
                     </table>
+                </div>
+
+                <div className="panel panel-default">
+                    <div className="panel-heading">
+                        <div>中断测试</div>
+                    </div>
+                    <div className="btn-group" role="group" aria-label="...">
+                        <button type="button" className="btn btn-primary" onClick={this.heavyTask}>正常发送
+                        </button>
+                        <button type="button" className="btn btn-primary" onClick={this.staticHeavyAbort}>静态注入
+                        </button>
+                        <button type="button" className="btn btn-primary" onClick={this.dynamicHeavyAbort}>动态注入
+                        </button>
+                        <button type="button" className="btn btn-primary" onClick={this.cancelTokenAbort}>CancelToken兼容
+                        </button>
+                    </div>
                 </div>
 
                 <div className="panel panel-default">
