@@ -4,4 +4,4 @@ import Service from "../core/service";
 
 export default function RequestConfig(config: Config): (() => Service);
 
-export default function RequestConfig(config: Partial<AxiosRequestConfig>): (() => AxiosPromise<any>);
+export default function RequestConfig(config: ((...args: any[]) => Partial<AxiosRequestConfig>) | Partial<AxiosRequestConfig>): (() => AxiosPromise<any>);
