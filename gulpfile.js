@@ -91,7 +91,8 @@ gulp.task("build", async () => {
 
     ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "lib/plugins/cache", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.d.ts`)
-            .pipe(gulp.dest(`dist/${dir}`));
+            .pipe(gulp.dest(`dist/${dir}`))
+            .pipe(gulp.dest(`dist/${dir.split('/').slice(1).join('/')}`));
     });
 
     ["core", "decorator", "plugins", "plugins/auth", "plugins/cache", "./"].forEach(dir => {
