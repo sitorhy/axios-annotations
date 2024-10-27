@@ -1,0 +1,1 @@
+export default function RequestWith(registration: string): ((target: any) => any);

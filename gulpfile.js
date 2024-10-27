@@ -91,7 +91,12 @@ gulp.task("build", async () => {
 
     ["lib/core", "lib/decorator", "lib/plugins", "lib/plugins/auth", "lib/plugins/cache", "./"].forEach(dir => {
         gulp.src(`core/${dir}/*.d.ts`)
-            .pipe(gulp.dest(`dist/${dir}`))
+            .pipe(gulp.dest(`dist/${dir}`));
+    });
+
+    // TS装饰器声明
+    ["lib/core", "lib/plugins", "lib/plugins/auth", "lib/plugins/cache", "./", "types/decorator"].forEach(dir => {
+        gulp.src(`core/${dir}/*.d.ts`)
             .pipe(gulp.dest(`dist/${dir.split('/').slice(1).join('/')}`));
     });
 

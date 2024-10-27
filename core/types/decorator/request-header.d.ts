@@ -1,0 +1,1 @@
+export default function RequestHeader(header: string, value: string | ((...args: any[]) => string)): ((target: any) => any);

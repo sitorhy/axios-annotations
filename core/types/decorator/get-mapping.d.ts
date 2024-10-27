@@ -1,0 +1,1 @@
+export default function GetMapping(path?: string): ((target: any) => any);
