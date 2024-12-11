@@ -258,7 +258,8 @@ const controller = new AbortController();
 // ...
 class AuthService extends Service {
   // ...
-  @AbortSource(controller) bar() {
+  @AbortSource(controller) 
+  bar() {
     // ....
     return {};
   }
@@ -283,7 +284,8 @@ const controller = new AbortControllerAdapter(CancelToken);
 // ...
 class AuthService extends Service {
   // ...
-  @AbortSource(controller) bar() {
+  @AbortSource(controller) 
+  bar() {
     // ....
     return {};
   }

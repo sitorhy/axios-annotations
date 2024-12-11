@@ -1,8 +1,9 @@
 import Config from "../core/config";
 import {forward} from "../core/common";
+import Service from "../core/service";
 
-export default function RequestMapping(path, method = null) {
-    return function (target, name, descriptor) {
+export default function RequestMapping(path: string, method?: string) {
+    return function(target: Function, name:string , descriptor:PropertyDescriptor) {
         if (!descriptor) {
             target.prototype._path = path;
         } else {
@@ -11,12 +12,12 @@ export default function RequestMapping(path, method = null) {
             }
             const fn = descriptor.value;
 
-            descriptor.value = function (...args) {
+            descriptor.value = function (...args: any[]) {
                 const data = fn.apply(this, args) || {};
-                if (typeof this.for !== "function") {
+                if (typeof (this as Service).for !== "function") {
                     throw new Error("Make sure your service inherited \"core/Service\".");
                 }
-                const registration = this.for(name);
+                const registration = (this as Service).for(name);
                 const withConfig = registration ? Config.forName(registration) : null;
                 if (data && data.then && typeof data.then === "function") {
                     return new Promise((resolve, reject) => {

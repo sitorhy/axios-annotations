@@ -1,19 +1,49 @@
-import {AxiosRequestConfig, CancelTokenSource, Method} from "axios";
+import {AxiosRequestConfig, CancelTokenSource, CancelTokenStatic, Method} from "axios";
 import {forward, isNullOrEmpty, normalizePath} from "./common";
 import URLSearchParamsParser from "./parser";
 import Config, {config} from "./config";
 
 export type HeaderMappingValueType = string | ((...args: any[]) => string);
 export type AxiosConfigOptionMappingType = keyof AxiosRequestConfig | ((...args: any[]) => (keyof AxiosRequestConfig));
-export type AbortControllerGenerator = ((...args: any[]) => (AbortController & { source: CancelTokenSource }));
+export type AbortControllerGenerator = ((...args: any[]) => (AbortController | AbortControllerAdapter));
 export type QueryStringEncodeFeatures = {
     ignoreResidualParams?: boolean;
-    abortController?: (AbortController & { source: CancelTokenSource }) | AbortControllerGenerator;
+    abortController?: (AbortController | AbortControllerAdapter) | AbortControllerGenerator;
 };
 export type RequestParamEncodeRule = {
     body?: boolean;
     required?: boolean;
 };
+
+/**
+ * 兼容旧版CancelToken，包装成AbortController
+ */
+export class AbortControllerAdapter {
+    _source: CancelTokenSource;
+
+    constructor(CancelToken: CancelTokenStatic) {
+        this._source = CancelToken.source();
+    }
+
+    get signal() {
+        return {
+            reason: this._source.token && this._source.token.reason ? (this._source.token.reason.message || "") : "",
+            aborted: this._source.token && this._source.token.reason ? this._source.token.reason.code === "ERR_CANCELED" : false,
+        };
+    }
+
+    get source() {
+        return this._source;
+    }
+
+    abort(message = "") {
+        if (message) {
+            this._source.cancel(message);
+        } else {
+            this._source.cancel();
+        }
+    }
+}
 
 export const ConfigMapping = {
     requestHeaders(rules: Record<string, HeaderMappingValueType>, args: any[] = []): Record<string, string> {
@@ -224,7 +254,7 @@ export default class Service {
         });
     }
 
-    abort(id: string, abortController: AbortController) {
+    abort(id: string, abortController: (AbortController | AbortControllerAdapter | AbortControllerGenerator)) {
         const cfg = Object.assign(this.features(id) || {}, {
             abortController
         });
@@ -274,8 +304,8 @@ export default class Service {
                 __abortControllerInst = abortController;
             }
             if (__abortControllerInst) {
-                if (__abortControllerInst.source) {
-                    config.cancelToken = __abortControllerInst.source.token;
+                if ((__abortControllerInst as AbortControllerAdapter).source) {
+                    config.cancelToken = (__abortControllerInst as AbortControllerAdapter).source.token;
                 } else {
                     config.signal = __abortControllerInst.signal;
                 }
@@ -388,8 +418,8 @@ export default class Service {
                         __abortControllerInst = abortController;
                     }
                     if (__abortControllerInst) {
-                        if (__abortControllerInst.source) {
-                            config.cancelToken = __abortControllerInst.source.token;
+                        if ((__abortControllerInst as AbortControllerAdapter).source) {
+                            config.cancelToken = (__abortControllerInst as AbortControllerAdapter).source.token;
                         } else {
                             config.signal = __abortControllerInst.signal;
                         }
