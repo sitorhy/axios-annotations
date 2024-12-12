@@ -28,7 +28,7 @@ export class AbortControllerAdapter {
     get signal() {
         return {
             reason: this._source.token && this._source.token.reason ? (this._source.token.reason.message || "") : "",
-            aborted: this._source.token && this._source.token.reason ? this._source.token.reason.code === "ERR_CANCELED" : false,
+            aborted: this._source.token && this._source.token.reason ? ('code' in this._source.token.reason && this._source.token.reason.code === "ERR_CANCELED") : false,
         };
     }
 
@@ -340,7 +340,79 @@ export default class Service {
         ));
     }
 
-    requestWith<T = any, R = AxiosResponse<T>, D = any>(method: string, path: string = ""): Promise<R> {
+    requestWith<T = any, R = AxiosResponse<T>, D = any>(method: string, path: string = ""): {
+        with(registration: string): {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        param: (key: string, required?: boolean) => {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        ignoreResidualParams(ignore?: boolean): {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        header: (header: string, value: HeaderMappingValueType) => {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        body: (key: string) => {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        config: (cfg: AxiosConfigOptionMappingType) => {
+            with(registration: string): any;
+            param: (key: string, required?: boolean) => any;
+            abort(abortController: ((AbortController & { source: CancelTokenSource }) | AbortControllerGenerator)): any;
+            ignoreResidualParams(ignore?: boolean): any;
+            header: (header: string, value: HeaderMappingValueType) => any;
+            body: (key: string) => any;
+            config: (cfg: AxiosConfigOptionMappingType) => any;
+            send: (data?: Record<string, any>) => (Promise<R>)
+        };
+        send: (data?: Record<string, any>) => (Promise<R>)
+    } {
         const _params: Record<string, RequestParamEncodeRule> = {};
         const _configs: AxiosConfigOptionMappingType[] = [];
         const _headers: Record<string, HeaderMappingValueType> = {};
