@@ -1,32 +1,33 @@
 import SessionStorage from "./storage";
 import SessionHistory from "./history";
+import {AxiosRequestConfig, AxiosResponse} from "axios";
 
 export default class Authorizer {
-    _sessionKey = "$_SESSION";
-    _sessionStorage = new SessionStorage();
-    _sessionHistory = new SessionHistory();
+    private _sessionKey: string = "$_SESSION";
+    private _sessionStorage: SessionStorage = new SessionStorage();
+    private _sessionHistory: SessionHistory = new SessionHistory();
 
-    get sessionKey() {
+    get sessionKey(): string {
         return this._sessionKey;
     }
 
-    set sessionKey(value) {
+    set sessionKey(value: string) {
         this._sessionKey = value;
     }
 
-    get sessionStorage() {
+    get sessionStorage(): SessionStorage {
         return this._sessionStorage;
     }
 
-    set sessionStorage(value) {
+    set sessionStorage(value: SessionStorage) {
         this._sessionStorage = value;
     }
 
-    get sessionHistory() {
+    get sessionHistory(): SessionHistory {
         return this._sessionHistory;
     }
 
-    set sessionHistory(value) {
+    set sessionHistory(value: SessionHistory) {
         this._sessionHistory = value;
     }
 
@@ -34,25 +35,27 @@ export default class Authorizer {
         return await this.sessionStorage.get(this.sessionKey);
     }
 
-    async storageSession(session) {
+    async storageSession(session: Record<string, any>) {
         await this.sessionStorage.set(this.sessionKey, session);
     }
 
-    async refreshSession(session) {
+    async refreshSession(_session: Record<string, any>): Promise<any> {
         return null;
     }
 
-    withAuthentication(request, session) {
+    withAuthentication(request: AxiosRequestConfig, session: Record<string, any>) {
         if (session) {
             const {access_token, accessToken, token} = session;
             if (access_token || accessToken || token) {
-                request.headers['Authorization'] = "Bearer " + (access_token || accessToken || token);
+                if (request.headers) {
+                    request.headers['Authorization'] = "Bearer " + (access_token || accessToken || token);
+                }
             }
         }
     }
 
-    checkSession(request, session) {
-        const header = request.headers["Authorization"] || request.headers["authorization"];
+    checkSession(request: AxiosRequestConfig, session: Record<string, any>) {
+        const header = (request.headers || {})["Authorization"] || (request.headers || {})["authorization"];
         const jwt = header ? (header.split(" ")[1] || "") : "";
         const token = session.access_token || session.accessToken || session.token;
         if (token === jwt) {
@@ -68,17 +71,17 @@ export default class Authorizer {
         return true;
     }
 
-    checkResponse(response) {
+    checkResponse(response: AxiosResponse) {
         const {status} = response || {status: 0};
         return status !== 401;
     }
 
-    async onAuthorizedDenied(error) {
+    async onAuthorizedDenied(error: unknown) {
         throw error;
     }
 
     onSessionInvalidated() {
-
+        return;
     }
 
     async invalidateSession() {

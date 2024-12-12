@@ -1,4 +1,4 @@
-import {AxiosRequestConfig, CancelTokenSource, CancelTokenStatic, Method} from "axios";
+import {AxiosRequestConfig, AxiosResponse, CancelTokenSource, CancelTokenStatic} from "axios";
 import {forward, isNullOrEmpty, normalizePath} from "./common";
 import URLSearchParamsParser from "./parser";
 import Config, {config} from "./config";
@@ -270,13 +270,21 @@ export default class Service {
         });
     }
 
-    configs(id: string, options: AxiosConfigOptionMappingType[]) {
+    configs(id: string, options: AxiosConfigOptionMappingType) {
         const root = this._configs || {};
         Object.assign(root, {
             [id]: (root[id] || []).concat(options)
         });
     }
 
+    /**
+     * 填充路径占位符 <br/>
+     * override this method to custom placeholder replacement <br>
+     * default implement: data = { id: 111 }; <br/>
+     * "/path/{id}" -> return "/path/111"
+     * @param path
+     * @param data
+     */
     pathVariable(path: string, data: Record<string, any>) {
         let p = path || "";
         const matchers = p.match(/{\w+}/g);
@@ -322,9 +330,9 @@ export default class Service {
         }
     }
 
-    request<D = any>(method: Method, path: string, data: Record<string, any> = {}, config: AxiosRequestConfig<D> = {}) {
+    request<T = any, R = AxiosResponse<T>, D = any>(method: string, path: string, data: Record<string, any> = {}, config: AxiosRequestConfig<D> = {}): Promise<R> {
         const url = path.indexOf("http") >= 0 ? path : this.config.baseURL + normalizePath(`/${this.path || ""}/${path}`);
-        return this.config.axios.request(Object.assign({
+        return this.config.axios.request<T, R, D>(Object.assign({
                 method,
                 url,
                 data
@@ -332,7 +340,7 @@ export default class Service {
         ));
     }
 
-    requestWith(method: Method, path: string = "") {
+    requestWith<T = any, R = AxiosResponse<T>, D = any>(method: string, path: string = ""): Promise<R> {
         const _params: Record<string, RequestParamEncodeRule> = {};
         const _configs: AxiosConfigOptionMappingType[] = [];
         const _headers: Record<string, HeaderMappingValueType> = {};
@@ -426,10 +434,10 @@ export default class Service {
                     }
                 }
                 if (_withConfig) {
-                    return forward(_withConfig.axios, _withConfig.origin, _withConfig.prefix, this.path, path, method, query, body, config);
+                    return forward<T, R, D>(_withConfig.axios, _withConfig.origin, _withConfig.prefix, this.path, path, method, query, body, config);
                 } else {
                     const p = `${this.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
-                    return this.request(method, p, body, config);
+                    return this.request<T, R, D>(method, p, body, config);
                 }
             }
         };

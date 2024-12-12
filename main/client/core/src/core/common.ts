@@ -17,7 +17,7 @@ export function forward<T = any, R = AxiosResponse<T>, D = any>(axios: AxiosInst
             url += "?" + query;
         }
     }
-    return axios.request(Object.assign({
+    return axios.request<T, R, D>(Object.assign({
             method,
             url,
             data: body

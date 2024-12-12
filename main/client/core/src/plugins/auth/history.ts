@@ -1,15 +1,18 @@
 import {isNullOrEmpty} from "../../core/common";
 
+/**
+ * 缓存过期会话，判断请求是否过期
+ */
 export default class SessionHistory {
-    _history = new Array(10);
-    _position = 0;
-    _size = 0;
+    _history: (Record<string, any> | null)[] = new Array(10);
+    _position: number = 0;
+    _size: number = 0;
 
-    get size() {
+    get size(): number {
         return this._size;
     }
 
-    add(session) {
+    add(session: Record<string, any>): void {
         if (Object.keys(session).every(i => isNullOrEmpty(session[i]))) {
             return;
         }
@@ -24,7 +27,7 @@ export default class SessionHistory {
         this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
     }
 
-    check(jwt) {
+    check(jwt: string): boolean {
         return this._history.some(session => {
             if (session) {
                 const {access_token, accessToken, token} = session;
@@ -34,7 +37,7 @@ export default class SessionHistory {
         });
     }
 
-    deprecate(session) {
+    deprecate(session: Record<string, any>): void {
         let position = 0;
         const {refresh_token, refreshToken} = session;
         const matching = this._history.find((s, i) => {
@@ -52,7 +55,7 @@ export default class SessionHistory {
         }
     }
 
-    clean() {
+    clean(): void {
         for (let i = 0; i < this._history.length; ++i) {
             const s = this._history[i];
             if (s && s.invalid) {
@@ -62,7 +65,7 @@ export default class SessionHistory {
         this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
     }
 
-    isDeprecated(session) {
+    isDeprecated(session: Record<string, any>): boolean {
         return this._history.some(s => {
             if (s) {
                 const {refresh_token, refreshToken} = session;

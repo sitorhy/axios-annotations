@@ -1,15 +1,18 @@
-export default function RequestParam(name, required = false) {
-    return function (target, method, descriptor) {
+import Service, {RequestParamEncodeRule} from "../core/service";
+
+// noinspection JSUnusedGlobalSymbols
+export default function RequestParam(name: string, required?: boolean) {
+    return function (_target: Function, method: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
             const fn = descriptor.value;
-            const cfg = Object.assign({
+            const cfg: RequestParamEncodeRule = Object.assign({
                 required: false,
                 body: false
             }, {
                 required: required === true
             });
             descriptor.value = function () {
-                this.params(method, name, cfg);
+                (this as Service).params(method, name, cfg);
                 return fn.apply(this, arguments);
             };
         }

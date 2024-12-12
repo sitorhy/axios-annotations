@@ -1,12 +1,15 @@
-export default function IgnoreResidualParams(ignore = true) {
-    return function (target, method, descriptor) {
+import Service from "../core/service";
+
+// noinspection JSUnusedGlobalSymbols
+export default function IgnoreResidualParams(ignore?: boolean) {
+    return function (_target: Function, method: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
             const fn = descriptor.value;
             descriptor.value = function () {
-                const cfg = Object.assign(this.features(method) || {}, {
-                    ignoreResidualParams: ignore === true,
+                const cfg = Object.assign((this as Service).features(method) || {}, {
+                    ignoreResidualParams: ignore !== false,
                 });
-                this.features(method, cfg);
+                (this as Service).features(method, cfg);
                 return fn.apply(this, arguments);
             };
         }

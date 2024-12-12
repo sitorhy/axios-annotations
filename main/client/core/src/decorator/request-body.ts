@@ -1,13 +1,16 @@
-export default function RequestBody(name = "body") {
-    return function (target, method, descriptor) {
+import Service, {RequestParamEncodeRule} from "../core/service";
+
+// noinspection JSUnusedGlobalSymbols
+export default function RequestBody(name: string = "body") {
+    return function (_target: Function, method: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
             const fn = descriptor.value;
-            const cfg = {
+            const cfg: RequestParamEncodeRule = {
                 required: false,
                 body: true
             };
             descriptor.value = function () {
-                this.params(method, name, cfg);
+                (this as Service).params(method, name, cfg);
                 return fn.apply(this, arguments);
             };
         }

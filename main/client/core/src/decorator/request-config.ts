@@ -1,9 +1,12 @@
-export default function RequestConfig(config) {
-    return function (target, name, descriptor) {
+import Service, {AxiosConfigOptionMappingType} from "../core/service";
+
+// noinspection JSUnusedGlobalSymbols
+export default function RequestConfig(config: AxiosConfigOptionMappingType) {
+    return function (target: Function, name: string, descriptor: PropertyDescriptor) {
         if (descriptor) {
             const fn = descriptor.value;
             descriptor.value = function () {
-                this.configs(name, config);
+                (this as Service).configs(name, config);
                 return fn.apply(this, arguments);
             };
         } else {

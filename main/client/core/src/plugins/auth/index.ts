@@ -1,9 +1,11 @@
 import PendingQueue from "./queue";
+import Authorizer from "./authorizer";
+import Config from "../../core/config";
 
-export default function AuthorizationPlugin(authorizer) {
-    return function (config) {
-        let unauthorized = false;
-        let expiredSession = null;
+export default function AuthorizationPlugin(authorizer: Authorizer) {
+    return function (config: Config) {
+        let unauthorized: boolean = false;
+        let expiredSession: Record<string, any> | null = null;
         const queue = new PendingQueue(authorizer);
 
         config.axios.interceptors.response.use(i => {
