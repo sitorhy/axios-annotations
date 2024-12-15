@@ -14,7 +14,10 @@ export default function RequestMapping(path: string, method?: string) {
                 if (typeof (this as Service).for !== "function") {
                     throw new Error("Make sure your service inherited \"core/Service\".");
                 }
-                const withConfig: Config | undefined = (this as Service).for(name);
+                // 当前方法是否重定向到其他配置
+                const withConfigName = (this as Service).for(name);
+                // 根据名称获取配置
+                const withConfig: Config | null = Config.forName(withConfigName || "");
                 if (data && data.then && typeof data.then === "function") {
                     return new Promise((resolve, reject) => {
                         data.then((d: any) => {

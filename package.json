@@ -4,6 +4,10 @@
   "description": "HTTP client library uses Axios without Typescript.",
   "main": "index.js",
   "scripts": {
+    "dev:web": "cd main/client/web-client-test & npm run dev",
+    "build:core": "cd main/client/core && npm run build",
+    "build": "cd main/client/build && npm run build",
+    "clean:packages": "rimraf main/client/build/node_modules & rimraf main/client/core/node_modules & rimraf main/client/build/dist & rimraf main/client/core/dist"
   },
   "repository": {
     "type": "git",
@@ -21,5 +25,6 @@
   },
   "homepage": "https://github.com/sitorhy/axios-annotations#readme",
   "devDependencies": {
+    "rimraf": "^6.0.1"
   }
 }

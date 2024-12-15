@@ -1,5 +1,5 @@
 import {AxiosRequestConfig, AxiosResponse, CancelTokenSource, CancelTokenStatic} from "axios";
-import {forward, isNullOrEmpty, normalizePath} from "./common";
+import {forward, isNullOrEmpty, normalizePath, replaceAllStr} from "./common";
 import URLSearchParamsParser from "./parser";
 import Config, {config} from "./config";
 
@@ -14,28 +14,58 @@ export type RequestParamEncodeRule = {
     body?: boolean;
     required?: boolean;
 };
+// AbortController replace CancelToken in new axios versions
+export type NextAbortVersionAxiosRequestConfig = AxiosRequestConfig & {
+    signal: AbortSignal;
+};
 
 /**
  * 兼容旧版CancelToken，包装成AbortController
  */
 export class AbortControllerAdapter {
+    /**
+     * {
+     *     cancel: (message, config, request) => void;
+     *     token: { promise, _listeners, reason: CanceledError }
+     * }
+     */
     _source: CancelTokenSource;
+
+    // sham signal onabort
+    _signal: {
+        onabort?: (e: Event) => void;
+        reason?: string;
+        aborted: boolean;
+    } = {
+        onabort: undefined,
+        reason: "",
+        aborted: false,
+    };
 
     constructor(CancelToken: CancelTokenStatic) {
         this._source = CancelToken.source();
+        this._source.token.promise.then(() => {
+            if (typeof this._signal.onabort === "function") {
+                this._signal.onabort(new Event("abort"));
+            }
+            this._signal.aborted = true;
+            this._signal.reason = this._source.token.reason?.message;
+        });
     }
 
+    /**
+     * sham AbortSignal. <br/>
+     * signal struct: {aborted: true, reason: string, onabort: null}  <br/>
+     */
     get signal() {
-        return {
-            reason: this._source.token && this._source.token.reason ? (this._source.token.reason.message || "") : "",
-            aborted: this._source.token && this._source.token.reason ? ('code' in this._source.token.reason && this._source.token.reason.code === "ERR_CANCELED") : false,
-        };
+        return this._signal;
     }
 
     get source() {
         return this._source;
     }
 
+    // sham AbortController.abort(reason)
     abort(message = "") {
         if (message) {
             this._source.cancel(message);
@@ -151,7 +181,7 @@ export default class Service {
     _headers: Record<string, Record<string, HeaderMappingValueType>> = {};
     _params: Record<string, Record<string, RequestParamEncodeRule>> = {};
     _configs: Record<string, AxiosConfigOptionMappingType[]> = {};
-    _for: Record<string, Config> = {};
+    _for: Record<string, string> = {};
     _features: Record<string, QueryStringEncodeFeatures> = {}
 
     constructor(path = null) {
@@ -245,12 +275,12 @@ export default class Service {
         });
     }
 
-    for(id: string, registration?: Config) {
+    for(id: string, registrationName?: string) {
         if (arguments.length === 1) {
             return this._for[id];
         }
         Object.assign(this._for, {
-            [id]: registration
+            [id]: registrationName
         });
     }
 
@@ -291,7 +321,7 @@ export default class Service {
         if (Array.isArray(matchers)) {
             matchers.forEach(m => {
                 const field = m.substring(1, m.length - 1);
-                p = p.replaceAll(`\{${field}\}`, data[field]);
+                p = replaceAllStr(p, `\{${field}\}`, data[field]);
             });
         }
         return p;
@@ -315,7 +345,7 @@ export default class Service {
                 if ((__abortControllerInst as AbortControllerAdapter).source) {
                     config.cancelToken = (__abortControllerInst as AbortControllerAdapter).source.token;
                 } else {
-                    config.signal = __abortControllerInst.signal;
+                    (config as NextAbortVersionAxiosRequestConfig).signal = (__abortControllerInst as AbortController).signal;
                 }
             }
         }
@@ -501,7 +531,7 @@ export default class Service {
                         if ((__abortControllerInst as AbortControllerAdapter).source) {
                             config.cancelToken = (__abortControllerInst as AbortControllerAdapter).source.token;
                         } else {
-                            config.signal = __abortControllerInst.signal;
+                            (config as NextAbortVersionAxiosRequestConfig).signal = (__abortControllerInst as AbortController).signal;
                         }
                     }
                 }

@@ -9,8 +9,7 @@ HTTP client library uses Axios without Typescript.
 开发环境不支持装饰器。
 
 ```javascript
-import Service from "axios-annotations/core/service";
-import {config} from "axios-annotations/core/config"
+import {config, Service} from "axios-annotations"
 
 config.protocol = "http";
 config.host = "localhost";
@@ -103,13 +102,15 @@ export default class TestService extends Service {
 方法只需要返回参数，并注解参数类型。
 
 ```javascript
-import Service from "axios-annotations/core/service";
-import RequestConfig from "axios-annotations/decorator/request-config";
-import RequestParam from "axios-annotations/decorator/request-param";
-import RequestMapping from "axios-annotations/decorator/request-mapping";
-import RequestBody from "axios-annotations/decorator/request-body";
-import RequestHeader from "axios-annotations/decorator/request-header";
-import IgnoreResidualParams from "axios-annotations/decorator/ignore-residual-params";
+import {
+  Service,
+  equestConfig,
+  equestParam,
+  equestMapping,
+  RequestBody,
+  RequestHeader,
+  IgnoreResidualParams
+} from "axios-annotations";
 
 @RequestMapping("/api")
 export default class TestService extends Service {
@@ -152,7 +153,7 @@ export default class TestService extends Service {
 
 ```javascript
 import qs from "qs";
-import URLSearchParamsParser from "axios-annotations/core/parser";
+import {URLSearchParamsParser} from "axios-annotations";
 
 if (typeof URLSearchParams === "undefined") {
     URLSearchParamsParser.encode = function (encoder) {
@@ -166,9 +167,11 @@ if (typeof URLSearchParams === "undefined") {
 ### Custom Config
 
 ```javascript
-import Config from "axios-annotations/core/config";
-import RequestConfig from "axios-annotations/decorator/request-config";
-import RequestMapping from "axios-annotations/decorator/request-mapping";
+import {
+    Config,
+    RequestConfig,
+    RequestMapping
+} from "axios-annotations";
 
 const config = new Config();
 config.host = "localhost";
@@ -191,7 +194,7 @@ export default class TestService extends Service {
 All Services inject this by default.
 
 ```javascript
-import {config} from "axios-annotations/core/config";
+import {config} from "axios-annotations";
 
 config.host = "192.168.137.1";
 config.port = 8080;
@@ -293,12 +296,15 @@ class AuthService extends Service {
 
 
 new AuthService().bar().then(() => {
-
+    // ...
 }).catch(e => {
   console.log(axios.isCancel(e));
 });
 
 // 取消请求
+controller.signal.onabort = () => {
+    console.log("aborted");  
+};
 controller.abort("cancel test")
 ```
 
@@ -345,7 +351,7 @@ class AuthService extends Service {
 插件函数接收配置对象为参数，出于扩展性考虑，通常由高阶函数返回。
 
 ```javascript
-import {config} from "axios-annotations/core/config"
+import {config} from "axios-annotations"
 
 function ToastPlugin(fnToast) {
     return function (config) {
@@ -435,7 +441,7 @@ Implement Authorizer.
 实现`Authorizer`类。至少需要实现方法`refreshSession`、`onAuthorizedDenied`。如果需要调用`invalidateSession`，还需要重载`onSessionInvalidated`。
 
 ```javascript
-import Authorizer from "axios-annotations/plugins/auth/authorizer";
+import {Authorizer} from "axios-annotations";
 
 export default class OAuth2Authorizer extends Authorizer {
     async refreshSession(session) {
@@ -488,7 +494,7 @@ Implement SessionStorage if store mode changed.
 
 ```javascript
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SessionStorage from "axios-annotations/plugins/auth/storage";
+import {SessionStorage} from "axios-annotations";
 
 export default class RNSessionStorage extends SessionStorage {
     async set(key, value) {
@@ -522,7 +528,7 @@ export default class OAuth2Authorizer extends Authorizer {
 
 ```javascript
 // config.js
-import AuthorizationPlugin from "axios-annotations/plugins/auth/index";
+import {AuthorizationPlugin} from "axios-annotations";
 
 // default config
 const config = new Config();
@@ -733,19 +739,7 @@ npm install axios-miniprogram-adapter
 + 编译报错 `module is not defined`， 在`app.js`头部补充缺失组件的声明：
 
 ```javascript
-import "axios-annotations/core/service";
-import "axios-annotations/decorator/request-mapping";
-import "axios-annotations/decorator/get-mapping";
-import "axios-annotations/decorator/post-mapping";
-import "axios-annotations/decorator/put-mapping";
-import "axios-annotations/decorator/delete-mapping";
-import "axios-annotations/decorator/patch-mapping";
-import "axios-annotations/decorator/request-param";
-import "axios-annotations/decorator/request-body";
-import "axios-annotations/decorator/request-header";
-import "axios-annotations/decorator/request-config";
-import "axios-annotations/decorator/request-with";
-import "axios-annotations/decorator/ignore-residual-params";
+import "axios-annotations";
 ```
 
 + 更新开发工具以支持装饰器语法。

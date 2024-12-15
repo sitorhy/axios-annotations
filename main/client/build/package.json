@@ -2,8 +2,8 @@
   "private": true,
   "name": "build",
   "version": "1.0.0",
-  "description": "构建输出",
-  "main": "index.js",
+  "description": "重构导出结构，支持小程序",
+  "main": "./dist/index.js",
   "type": "module",
   "scripts": {
     "build": "rollup --config rollup.config.js"
@@ -15,8 +15,13 @@
     "rollup": "^4.28.1",
     "@rollup/plugin-typescript": "^12.1.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-dts": "^6.1.1",
     "typescript": "^5.7.2",
     "tslib": "^2.8.1",
-    "core": "workspace:*"
+    "core": "workspace:*",
+    "axios": "^0.29.0"
   }
 }

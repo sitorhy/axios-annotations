@@ -56,7 +56,7 @@ export default class Authorizer {
 
     checkSession(request: AxiosRequestConfig, session: Record<string, any>) {
         const header = (request.headers || {})["Authorization"] || (request.headers || {})["authorization"];
-        const jwt = header ? (header.split(" ")[1] || "") : "";
+        const jwt = typeof header === "string"? (header.split(" ")[1] || "") : "";
         const token = session.access_token || session.accessToken || session.token;
         if (token === jwt) {
             // request header token equal to invalid session token

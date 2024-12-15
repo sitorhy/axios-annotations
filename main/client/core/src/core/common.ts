@@ -24,3 +24,8 @@ export function forward<T = any, R = AxiosResponse<T>, D = any>(axios: AxiosInst
         }, config
     ));
 }
+
+export function replaceAllStr(target: string, search: string | RegExp, replacement: string) {
+    const pattern = typeof search === 'string' ? RegExp(search, 'g') : search;
+    return target.replace(pattern, replacement);
+}
