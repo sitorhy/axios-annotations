@@ -10,13 +10,7 @@ export default [
     {
         input: "src/index.ts",
         output: {
-            file: "dist/index.js",
-            sourcemap: true,
-            format: "umd",
-            name: "index",
-            globals: {
-                "axios": "axios",
-            },
+            file: "dist/index.js"
         },
         /**
          * Axios export bugs in built: axios is not defined in browser, use 0.27.2 below or others
@@ -31,15 +25,9 @@ export default [
     },
     // 默认插件拆分打包
     {
-        input: "src/plugins.ts",
+        input: "src/auth.ts",
         output: {
-            file: "dist/plugins.js",
-            sourcemap: true,
-            format: "umd",
-            name: "index",
-            globals: {
-                "axios": "axios",
-            },
+            file: "dist/auth.js"
         },
         external: ["axios"],
         plugins: [
@@ -63,10 +51,10 @@ export default [
         ],
     },
     {
-        input: "dist/plugins.d.ts",
+        input: "dist/auth.d.ts",
         output: [
             {
-                file: "dist/plugins.d.ts",
+                file: "dist/auth.d.ts",
                 format: "es"
             }
         ],

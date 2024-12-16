@@ -4,4 +4,4 @@ export {
     AuthorizationPlugin,
     Authorizer,
     SessionStorage
-} from "core/dist/plugins";
+} from "core/dist/auth";

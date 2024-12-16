@@ -1,4 +1,4 @@
-import {Config} from "build";
+import {Config} from "axios-annotations";
 
 const config = new Config();
 

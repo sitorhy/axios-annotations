@@ -6,7 +6,7 @@ import {
     RequestMapping,
     RequestBody,
     RequestHeader
-} from "build";
+} from "axios-annotations";
 
 @RequestConfig(config)
 @RequestMapping("/auth")

@@ -6,7 +6,7 @@ import {createHashHistory} from "history";
 import store from "./store";
 import App from "./components/App";
 
-import {URLSearchParamsParser} from "build";
+import {URLSearchParamsParser} from "axios-annotations";
 
 if (typeof URLSearchParams === "undefined") {
     URLSearchParamsParser.encode = function (encoder) {

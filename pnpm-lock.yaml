@@ -100,15 +100,12 @@ importers:
       axios:
         specifier: 1.7.4
         version: 1.7.4
-      build:
+      axios-annotations:
         specifier: workspace:*
-        version: link:../build
+        version: link:../release
       console-polyfill:
         specifier: ^0.3.0
         version: 0.3.0
-      core:
-        specifier: workspace:*
-        version: link:../core
       history:
         specifier: 1.17.0
         version: 1.17.0

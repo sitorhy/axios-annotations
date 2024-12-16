@@ -6,7 +6,7 @@ import {
     RequestParam,
     GetMapping,
     RequestBody
-} from "build";
+} from "axios-annotations";
 
 const config = new Config();
 config.host = "localhost";

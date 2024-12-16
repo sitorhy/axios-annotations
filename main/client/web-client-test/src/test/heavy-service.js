@@ -7,7 +7,7 @@ import {
     RequestHeader,
     AbortSource,
     AbortControllerAdapter
-} from "build";
+} from "axios-annotations";
 
 
 import axios from "axios";

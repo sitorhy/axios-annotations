@@ -11,7 +11,7 @@ import {
     Config,
     GetMapping,
     RequestWith
-} from "build";
+} from "axios-annotations";
 
 new Config("http", "localhost", 8082, "/pic").register("picConfig");
 

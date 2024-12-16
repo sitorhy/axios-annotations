@@ -4,4 +4,4 @@ export {
     AuthorizationPlugin,
     Authorizer,
     SessionStorage
-} from "../lib/plugins";
+} from "../../lib/plugins/auth";

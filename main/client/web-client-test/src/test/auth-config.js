@@ -1,5 +1,5 @@
-import {Config} from "build";
-import {AuthorizationPlugin} from "build/dist/plugins";
+import {Config} from "axios-annotations";
+import {AuthorizationPlugin} from "axios-annotations/plugins/auth";
 import OAuth2Authorizer from "./oauth2-authorizer";
 
 const config = new Config();
