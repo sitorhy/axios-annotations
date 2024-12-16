@@ -1,10 +1,9 @@
 import typescript from '@rollup/plugin-typescript';
-import copy from 'rollup-plugin-copy';
 import fs from "fs";
-import * as path from "node:path";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import {nodeResolve} from "@rollup/plugin-node-resolve";
+import gulp from "gulp";
 
 export default [
     {
@@ -59,53 +58,9 @@ export default [
                     }
                 }
             ),
-            copy({
-                targets: [
-                    {
-                        src: "../../../LICENSE",
-                        dest: 'dist',
-                    },
-                    {
-                        src: "../../../README.md",
-                        dest: 'dist',
-                    },
-                ]
-            }),
             (function () {
                 return {
-                    buildEnd() {
-                        if (!fs.existsSync('./dist')) {
-                            fs.mkdirSync("./dist");
-                        }
-                        const pkg = path.resolve("../../../package.json");
-                        const info = JSON.parse(fs.readFileSync(pkg));
-                        const {
-                            name,
-                            version,
-                            description,
-                            homepage,
-                            repository,
-                            author,
-                            license,
-                            keywords
-                        } = info;
-
-                        fs.writeFileSync("dist/package.json", JSON.stringify({
-                            main: "index.js",
-                            name,
-                            version,
-                            description,
-                            homepage,
-                            repository,
-                            author,
-                            license,
-                            miniprogram: "lib",
-                            keywords,
-                        }, null, 2), {
-                            flag: "w"
-                        });
-                    },
-                    writeBundle(options) {
+                    writeBundle() {
                         // typescript负责模块生成声明文件 rollup需要覆盖自动生成的d.ts文件
                         fs.copyFileSync("node_modules/core/dist/index.d.ts", "dist/lib/index.d.ts");
                     }
@@ -114,7 +69,7 @@ export default [
         ]
     },
     {
-        // 默认入口
+        // 插件默认入口
         input: 'plugins/index.ts',
         output: [
             {
@@ -134,6 +89,11 @@ export default [
                     }
                 }
             ),
+            {
+                writeBundle() {
+                    gulp.src("dist/**/*").pipe(gulp.dest("../release"));
+                }
+            }
         ]
     },
 ]
