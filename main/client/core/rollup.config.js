@@ -29,12 +29,44 @@ export default [
             typescript(),
         ],
     },
+    // 默认插件拆分打包
+    {
+        input: "src/plugins.ts",
+        output: {
+            file: "dist/plugins.js",
+            sourcemap: true,
+            format: "umd",
+            name: "index",
+            globals: {
+                "axios": "axios",
+            },
+        },
+        external: ["axios"],
+        plugins: [
+            commonjs(),
+            nodeResolve(),
+            json(),
+            typescript(),
+        ],
+    },
     // 打包声明文件
     {
         input: "dist/index.d.ts",
         output: [
             {
                 file: "dist/index.d.ts",
+                format: "es"
+            }
+        ],
+        plugins: [
+            dts()
+        ],
+    },
+    {
+        input: "dist/plugins.d.ts",
+        output: [
+            {
+                file: "dist/plugins.d.ts",
                 format: "es"
             }
         ],

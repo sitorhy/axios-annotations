@@ -17,7 +17,4 @@ export { default as RequestHeader } from "./decorator/request-header";
 export { default as RequestMapping } from "./decorator/request-mapping";
 export { default as RequestParam } from "./decorator/request-param";
 export { default as RequestWith } from "./decorator/request-with";
-export { default as AuthorizationPlugin } from "./plugins/auth";
-export { default as Authorizer } from "./plugins/auth/authorizer";
-export { default as SessionStorage } from "./plugins/auth/storage";
 

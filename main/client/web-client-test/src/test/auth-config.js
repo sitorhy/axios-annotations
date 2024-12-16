@@ -1,4 +1,5 @@
-import {Config, AuthorizationPlugin} from "build";
+import {Config} from "build";
+import {AuthorizationPlugin} from "build/dist/plugins";
 import OAuth2Authorizer from "./oauth2-authorizer";
 
 const config = new Config();

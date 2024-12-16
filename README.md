@@ -206,7 +206,7 @@ config.port = 8080;
 注册配置，用途：<br>
 
 + 不需要 `export` 导出，使用 `Config.forName(name:string)` 获取。
-+ 部分特殊请求可能需要绕开自身配置，使用`@RequestWith(config)`注解方法，请求将使用指定配置进行构建。
++ 部分特殊请求可能需要绕开自身配置，使用`@RequestWith(configName: string)`注解方法，请求将使用指定配置进行构建。
 
 ```javascript
 new Config("http", "localhost", 9999, "/auth").register("withoutPlugins");

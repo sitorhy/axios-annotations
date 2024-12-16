@@ -1,4 +1,4 @@
-import {Authorizer} from "build";
+import {Authorizer} from "build/dist/plugins";
 import OAuth2Service from "./oauth2-service";
 
 export default class OAuth2Authorizer extends Authorizer {
