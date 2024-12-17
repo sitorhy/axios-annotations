@@ -2,6 +2,9 @@ import PendingQueue from "./queue";
 import Authorizer from "./authorizer";
 import Config from "../../core/config";
 
+export {default as Authorizer} from "./authorizer";
+export {default as SessionStorage} from "./storage";
+
 export default function AuthorizationPlugin(authorizer: Authorizer) {
     return function (config: Config) {
         let unauthorized: boolean = false;
@@ -10,19 +13,25 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
 
         config.axios.interceptors.response.use(i => {
             if (expiredSession) {
+                // Previously requests sent have been rejected, record and release it (will be resending)
                 authorizer.sessionHistory.add(expiredSession);
                 expiredSession = null;
             }
             return i;
         }, async function (e) {
             const {response} = e;
+            // HTTP Code = 401 ?
             if (!authorizer.checkResponse(response)) {
+                // Yes, is first time 401 occurred ?
                 if (!unauthorized) {
                     unauthorized = true;
+                    // get current session (expired)
                     const session = await authorizer.getSession();
+                    // is the refresh token expired and must be logged in again ?
                     if (authorizer.sessionHistory.isDeprecated(session)) {
-                        // not need to validate invalid refresh_token
+                        // Yes, just throw the 401 error
                         try {
+                            // You may override this method for home page redirecting.
                             await authorizer.onAuthorizedDenied(e);
                             authorizer.sessionHistory.clean();
                         } catch (e5) {
@@ -33,8 +42,17 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
                         }
                     }
                     expiredSession = session;
+
+                    // later 401 request will be put in resending queue until new accessToken generated.
+
+                    // is accessToken of current expired session equal to request one ?
+                    // Y: the request need to resend, put it in the queue.
+                    // N: the session must have been updated, just resend the 401 request.
                     if (!authorizer.checkSession(e.config, session)) {
                         try {
+                            // waiting for next accessToken refresh, on the server side, updates are synchronized.
+                            // Note:
+                            // even if the refreshing request send few times, the server side will only return the same token.
                             await authorizer.storageSession(await authorizer.refreshSession(session));
                         } catch (e2) {
                             // invalid refresh_token
@@ -46,11 +64,14 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
                                 throw e;
                             } finally {
                                 unauthorized = false;
+                                // cancel all requests resending.
                                 queue.clear();
                             }
                         }
                     }
                     unauthorized = false;
+
+                    // the accessToken refreshed, send the request itself and startup resending queue cleaning.
                     (() => {
                         while (queue.size) {
                             queue.pop();
@@ -59,12 +80,15 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
                     try {
                         return await queue.resend(e);
                     } catch (e4) {
+                        // 500 502 503 ...
                         throw e4;
                     }
                 } else {
+                    // No, 401 request occurred, put in to resending queue itself.
                     return (await queue.push(e));
                 }
             } else {
+                // HTTP Code = 500 503 502 ... just throw it
                 throw e;
             }
         });

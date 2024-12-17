@@ -43,6 +43,7 @@ export default class Authorizer {
         return null;
     }
 
+    // append auth headers
     withAuthentication(request: AxiosRequestConfig, session: Record<string, any>) {
         if (session) {
             const {access_token, accessToken, token} = session;

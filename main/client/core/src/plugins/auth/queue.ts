@@ -1,11 +1,11 @@
 import axios, {AxiosInstance} from "axios";
 import Authorizer from "./authorizer";
 
-function random(min: number, max: number) {
+function random(min: number, max: number): number {
     return (Math.random() * (max - min + 1) | 0) + min;
 }
 
-function sleep(time: number) {
+function sleep(time: number): Promise<void> {
     return new Promise((resolve: (_?: any) => void) => {
         let t: number | undefined = setTimeout(() => {
             clearTimeout(t);
@@ -17,7 +17,7 @@ function sleep(time: number) {
 
 export default class PendingQueue {
     _queue: {
-        error: any, resolve: (...args: any[]) => void, reject: (...args: any[]) => void;
+        error: unknown, resolve: (arg: any) => void, reject: (arg: any) => void;
     }[] = [];
     _authorizer: Authorizer;
     _axios: AxiosInstance = axios.create();
@@ -50,13 +50,13 @@ export default class PendingQueue {
         }
     }
 
-    push(error: any) {
+    push(error: any): Promise<any> {
         return new Promise((resolve, reject) => {
             this._queue.push({error, resolve, reject});
         });
     }
 
-    pop() {
+    pop():void {
         const requestSaved = this._queue.shift();
         if (!requestSaved) {
             return;
@@ -65,13 +65,13 @@ export default class PendingQueue {
         this.resend(error).then(resolve).catch(reject);
     }
 
-    clear() {
+    clear():void {
         this._queue.splice(0).forEach(({error, reject}) => {
             reject(error);
         });
     }
 
-    get size() {
+    get size(): number {
         return this._queue.length;
     }
 }

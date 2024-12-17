@@ -4,7 +4,9 @@ import {isNullOrEmpty} from "../../core/common";
  * 缓存过期会话，判断请求是否过期
  */
 export default class SessionHistory {
+    // store up to 10 sessions, include expired or not
     _history: (Record<string, any> | null)[] = new Array(10);
+    // next session storage location
     _position: number = 0;
     _size: number = 0;
 
@@ -12,6 +14,7 @@ export default class SessionHistory {
         return this._size;
     }
 
+    // store primary keys for session
     add(session: Record<string, any>): void {
         if (Object.keys(session).every(i => isNullOrEmpty(session[i]))) {
             return;
@@ -27,6 +30,7 @@ export default class SessionHistory {
         this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
     }
 
+    // session exist or not
     check(jwt: string): boolean {
         return this._history.some(session => {
             if (session) {
@@ -37,6 +41,7 @@ export default class SessionHistory {
         });
     }
 
+    // mark the session expired
     deprecate(session: Record<string, any>): void {
         let position = 0;
         const {refresh_token, refreshToken} = session;
@@ -55,6 +60,7 @@ export default class SessionHistory {
         }
     }
 
+    // remove expired sessions
     clean(): void {
         for (let i = 0; i < this._history.length; ++i) {
             const s = this._history[i];
@@ -65,6 +71,7 @@ export default class SessionHistory {
         this._size = this._history.reduce((s, i) => i ? s + 1 : s, 0);
     }
 
+    // is the session expired
     isDeprecated(session: Record<string, any>): boolean {
         return this._history.some(s => {
             if (s) {
