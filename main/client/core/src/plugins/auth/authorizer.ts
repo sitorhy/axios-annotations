@@ -1,6 +1,6 @@
 import SessionStorage from "./storage";
 import SessionHistory from "./history";
-import {AxiosRequestConfig, AxiosResponse} from "axios";
+import {AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
 export default class Authorizer {
     private _sessionKey: string = "$_SESSION";
@@ -44,7 +44,7 @@ export default class Authorizer {
     }
 
     // append auth headers
-    withAuthentication(request: AxiosRequestConfig, session: Record<string, any>) {
+    withAuthentication(request: InternalAxiosRequestConfig, session: Record<string, any>) {
         if (session) {
             const {access_token, accessToken, token} = session;
             if (access_token || accessToken || token) {
@@ -55,9 +55,9 @@ export default class Authorizer {
         }
     }
 
-    checkSession(request: AxiosRequestConfig, session: Record<string, any>) {
+    checkSession(request: InternalAxiosRequestConfig, session: Record<string, any>) {
         const header = (request.headers || {})["Authorization"] || (request.headers || {})["authorization"];
-        const jwt = typeof header === "string"? (header.split(" ")[1] || "") : "";
+        const jwt = typeof header === "string" ? (header.split(" ")[1] || "") : "";
         const token = session.access_token || session.accessToken || session.token;
         if (token === jwt) {
             // request header token equal to invalid session token

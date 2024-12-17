@@ -1,6 +1,7 @@
 import PendingQueue from "./queue";
 import Authorizer from "./authorizer";
 import Config from "../../core/config";
+import {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
 export {default as Authorizer} from "./authorizer";
 export {default as SessionStorage} from "./storage";
@@ -18,10 +19,10 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
                 expiredSession = null;
             }
             return i;
-        }, async function (e) {
+        }, async function (e: AxiosError) {
             const {response} = e;
             // HTTP Code = 401 ?
-            if (!authorizer.checkResponse(response)) {
+            if (!authorizer.checkResponse(response as AxiosResponse)) {
                 // Yes, is first time 401 occurred ?
                 if (!unauthorized) {
                     unauthorized = true;
@@ -48,7 +49,7 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
                     // is accessToken of current expired session equal to request one ?
                     // Y: the request need to resend, put it in the queue.
                     // N: the session must have been updated, just resend the 401 request.
-                    if (!authorizer.checkSession(e.config, session)) {
+                    if (!authorizer.checkSession(e.config as InternalAxiosRequestConfig, session)) {
                         try {
                             // waiting for next accessToken refresh, on the server side, updates are synchronized.
                             // Note:
@@ -84,7 +85,7 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
                         throw e4;
                     }
                 } else {
-                    // No, 401 request occurred, put in to resending queue itself.
+                    // No, 401 request occurred, put in to resending queue itself and waiting.
                     return (await queue.push(e));
                 }
             } else {

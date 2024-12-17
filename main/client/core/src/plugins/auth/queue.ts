@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from "axios";
+import axios, {AxiosError, AxiosInstance, InternalAxiosRequestConfig} from "axios";
 import Authorizer from "./authorizer";
 
 function random(min: number, max: number): number {
@@ -17,7 +17,7 @@ function sleep(time: number): Promise<void> {
 
 export default class PendingQueue {
     _queue: {
-        error: unknown, resolve: (arg: any) => void, reject: (arg: any) => void;
+        error: AxiosError, resolve: (arg: any) => void, reject: (arg: any) => void;
     }[] = [];
     _authorizer: Authorizer;
     _axios: AxiosInstance = axios.create();
@@ -29,7 +29,7 @@ export default class PendingQueue {
         this._authorizer = authorizer;
     }
 
-    async resend(error: any, retries = 3) {
+    async resend(error: AxiosError, retries = 3): Promise<any> {
         for (let i = 0; i < retries; ++i) {
             if (i > 0) {
                 await sleep(random(3000, 5000));
@@ -40,23 +40,24 @@ export default class PendingQueue {
                 throw error;
             }
             try {
-                this._authorizer.withAuthentication(error.config, session);
-                return await this._axios.request(error.config);
+                this._authorizer.withAuthentication(error.config as InternalAxiosRequestConfig, session);
+                return await this._axios.request(error.config as InternalAxiosRequestConfig);
             } catch (e) {
                 if (i >= retries - 1) {
-                    throw e;
+                    break;
                 }
             }
         }
+        throw error;
     }
 
-    push(error: any): Promise<any> {
+    push(error: AxiosError): Promise<any> {
         return new Promise((resolve, reject) => {
             this._queue.push({error, resolve, reject});
         });
     }
 
-    pop():void {
+    pop(): void {
         const requestSaved = this._queue.shift();
         if (!requestSaved) {
             return;
@@ -65,7 +66,7 @@ export default class PendingQueue {
         this.resend(error).then(resolve).catch(reject);
     }
 
-    clear():void {
+    clear(): void {
         this._queue.splice(0).forEach(({error, reject}) => {
             reject(error);
         });
