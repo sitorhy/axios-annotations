@@ -1,5 +1,5 @@
-import SessionStorage from "./storage";
-import SessionHistory from "./history";
+import SessionStorage from "./storage.js";
+import SessionHistory from "./history.js";
 import {AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
 export default class Authorizer {

@@ -1,7 +1,7 @@
 import {AxiosRequestConfig, AxiosResponse, CancelTokenSource, CancelTokenStatic} from "axios";
-import {forward, isNullOrEmpty, normalizePath, replaceAllStr} from "./common";
-import URLSearchParamsParser from "./parser";
-import Config, {config} from "./config";
+import {forward, isNullOrEmpty, normalizePath, replaceAllStr} from "./common.js";
+import URLSearchParamsParser from "./parser.js";
+import Config, {config} from "./config.js";
 
 export type HeaderMappingValueType = string | ((...args: any[]) => string);
 export type AxiosConfigOptionMappingType = keyof AxiosRequestConfig | ((...args: any[]) => (keyof AxiosRequestConfig));

@@ -1,5 +1,5 @@
 import axios, {AxiosError, AxiosInstance, InternalAxiosRequestConfig} from "axios";
-import Authorizer from "./authorizer";
+import Authorizer from "./authorizer.js";
 
 function random(min: number, max: number): number {
     return (Math.random() * (max - min + 1) | 0) + min;

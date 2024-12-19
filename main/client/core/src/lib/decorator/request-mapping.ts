@@ -1,6 +1,6 @@
-import Config from "../core/config";
-import {forward} from "../core/common";
-import Service from "../core/service";
+import Config from "../core/config.js";
+import {forward} from "../core/common.js";
+import Service from "../core/service.js";
 
 export default function RequestMapping(path: string, method?: string) {
     return function (target: Function, name: string, descriptor: PropertyDescriptor) {

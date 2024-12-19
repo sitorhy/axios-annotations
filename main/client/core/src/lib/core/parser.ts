@@ -1,4 +1,4 @@
-import {isNullOrEmpty} from "./common";
+import {isNullOrEmpty} from "./common.js";
 
 const URLSearchParamsParser = {
     /**
