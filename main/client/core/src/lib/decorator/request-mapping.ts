@@ -28,7 +28,9 @@ export default function RequestMapping(path: string, method?: string) {
                                 query
                             } = (this as Service).createRequestConfig(name, (this as Service).pathVariable(path || "", d), d, args, args);
                             if (withConfig) {
-                                forward(withConfig.axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, method || "GET", query, body, config).then(resolve).catch(reject);
+                                withConfig.requestAxiosInstance().then(axios => {
+                                    forward(axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, method || "GET", query, body, config).then(resolve).catch(reject);
+                                });
                             } else {
                                 (this as Service).request(method || "GET", p, body, config).then(resolve).catch(reject);
                             }
@@ -41,8 +43,13 @@ export default function RequestMapping(path: string, method?: string) {
                         config,
                         query
                     } = (this as Service).createRequestConfig(name, (this as Service).pathVariable(path || "", data), data, args, args);
+
                     if (withConfig) {
-                        return forward(withConfig.axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, method || "GET", query, body, config);
+                        return new Promise((resolve, reject) => {
+                            withConfig.requestAxiosInstance().then(axios => {
+                                return forward(axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, method || "GET", query, body, config).then(resolve).catch(reject);
+                            });
+                        });
                     } else {
                         return (this as Service).request(method || "GET", p, body, config);
                     }

@@ -1,23 +1,38 @@
-import axios from "axios";
-import type {AxiosInstance} from "axios";
-
-const _global_configs: { name: string; config: Config }[] = [];
+import AxiosStaticInstanceProvider from "./provider";
+import {AxiosInstance} from "axios";
 
 export type ConfigPlugin = (...args: unknown[]) => (config: Config) => void;
 export type PartialConstructorString = string | null;
 export type PartialConstructorNumber = number | null;
-export type PartialPluginConstructorPlugin = ConfigPlugin[] | null;
+export type PartialPluginConstructorPlugins = ConfigPlugin[] | null;
+
+const _global_configs: { name: string; config: Config }[] = [];
 
 export default class Config {
     private _host: string = "localhost";
     private _port: number = 8080;
     private _protocol: string = "http";
     private _prefix: string = "";
-    _axios: AxiosInstance = axios.create();
-    _plugins: ConfigPlugin[] = [];
+    private _axiosProvider: AxiosStaticInstanceProvider = new AxiosStaticInstanceProvider();
+    private _axios: AxiosInstance | null = null;
+    private _plugins: ConfigPlugin[] = [];
 
-    constructor(protocol: PartialConstructorString = null, host: PartialConstructorString = null, port: PartialConstructorNumber = null, prefix: PartialConstructorString = null, plugins: PartialPluginConstructorPlugin = null) {
-        this.init(protocol, host, port, prefix, plugins);
+    constructor(
+        options?: {
+            protocol?: PartialConstructorString;
+            host?: PartialConstructorString;
+            port?: PartialConstructorNumber;
+            prefix?: PartialConstructorString;
+            plugins?: PartialPluginConstructorPlugins
+        }
+    ) {
+        this.init(
+            options?.protocol || null,
+            options?.host || null,
+            options?.port || null,
+            options?.prefix || null,
+            options?.plugins || null
+        );
     }
 
     static forName(name: string): Config | null {
@@ -29,7 +44,7 @@ export default class Config {
         }
     }
 
-    init(protocol: PartialConstructorString, host: PartialConstructorString, port: PartialConstructorNumber, prefix: PartialConstructorString, plugins: PartialPluginConstructorPlugin): void {
+    init(protocol: PartialConstructorString, host: PartialConstructorString, port: PartialConstructorNumber, prefix: PartialConstructorString, plugins: PartialPluginConstructorPlugins): void {
         if (port) {
             this.port = port;
         }
@@ -43,7 +58,7 @@ export default class Config {
             this.prefix = prefix;
         }
         if (Array.isArray(plugins)) {
-            this.plugins = plugins;
+            this._plugins = plugins;
         }
     }
 
@@ -96,20 +111,20 @@ export default class Config {
         return `${this.origin}${this.prefix}`;
     }
 
-    get axios(): AxiosInstance {
-        return this._axios;
-    }
-
-    set axios(value: AxiosInstance) {
-        this._axios = value;
-    }
-
     get plugins(): ConfigPlugin[] {
         return this._plugins;
     }
 
     set plugins(value: ConfigPlugin[]) {
         this._plugins = value;
+    }
+
+    get axiosProvider(): AxiosStaticInstanceProvider {
+        return this._axiosProvider;
+    }
+
+    set axiosProvider(value: AxiosStaticInstanceProvider) {
+        this._axiosProvider = value;
     }
 
     /**
@@ -138,6 +153,17 @@ export default class Config {
             _global_configs.splice(index, 1);
         }
         return this;
+    }
+
+    async requestAxiosInstance(): Promise<AxiosInstance> {
+        if (this._axios) {
+            return this._axios;
+        }
+        this._axios = (await this._axiosProvider.get()).create();
+        this._plugins.forEach(plugin => {
+            plugin(this._axios, this);
+        });
+        return this._axios;
     }
 }
 

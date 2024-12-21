@@ -41,13 +41,9 @@ function renderChannel(channel) {
     })
 }
 
-function connectChannelItem(channel, channelName, item, dispatch) {
+function connectChannelItem(channel, channelName, item, dispatch, authTestService) {
     setTimeout(() => {
-        testUnit2(channel, item.id, (status) => {
-            dispatch({
-                status
-            });
-        }).then((res) => {
+        testUnit2(channel, item.id, authTestService).then((res) => {
             if (res.error) {
                 dispatch({
                     type: "COMMIT_CHANNEL_ITEM",
@@ -71,9 +67,9 @@ function connectChannelItem(channel, channelName, item, dispatch) {
     }, genRandom(1000, 20000));
 }
 
-function connectChannel(arr, channel, channelName, dispatch) {
+function connectChannel(arr, channel, channelName, dispatch, authTestService) {
     arr.forEach(i => {
-        connectChannelItem(channel, channelName, i, dispatch);
+        connectChannelItem(channel, channelName, i, dispatch, authTestService);
     });
 }
 
@@ -81,6 +77,9 @@ class Home extends React.Component {
     state = {
         history: []
     };
+
+    oauth2Service = new OAuth2Service();
+    authTestService = new AuthTestService();
 
     componentDidMount() {
 
@@ -122,7 +121,7 @@ class Home extends React.Component {
         } = auth;
 
         if (!access_tokens.length || !refresh_tokens.length) {
-            new OAuth2Service().token().then(res => {
+            this.oauth2Service.token().then(res => {
                 const session = res.data;
                 this.props.dispatch({
                     type: "SET_ACCESS_TOKEN",
@@ -139,7 +138,7 @@ class Home extends React.Component {
                 console.log(e);
             });
         } else {
-            new AuthTestService().channel1(new Date().toLocaleTimeString()).then(({data}) => {
+            this.authTestService.channel1(new Date().toLocaleTimeString()).then(({data}) => {
                 console.log(data);
             }).catch(e => {
                 console.log(e);
@@ -158,7 +157,7 @@ class Home extends React.Component {
         } = auth;
 
         if (!access_tokens.length || !refresh_tokens.length) {
-            new OAuth2Service().token().then(res => {
+            this.oauth2Service.token().then(res => {
                 const session = res.data;
                 this.props.dispatch({
                     type: "SET_ACCESS_TOKEN",
@@ -190,10 +189,10 @@ class Home extends React.Component {
                     channel2_2 = []
                 } = results;
 
-                connectChannel(channel1_1, "channel1", "channel1_1", dispatch);
-                connectChannel(channel1_2, "channel2", "channel1_2", dispatch);
-                connectChannel(channel2_1, "channel1", "channel2_1", dispatch);
-                connectChannel(channel2_2, "channel2", "channel2_2", dispatch);
+                connectChannel(channel1_1, "channel1", "channel1_1", dispatch, this.authTestService);
+                connectChannel(channel1_2, "channel2", "channel1_2", dispatch, this.authTestService);
+                connectChannel(channel2_1, "channel1", "channel2_1", dispatch, this.authTestService);
+                connectChannel(channel2_2, "channel2", "channel2_2", dispatch, this.authTestService);
             });
         }
     }

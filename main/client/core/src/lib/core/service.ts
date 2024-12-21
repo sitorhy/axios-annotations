@@ -148,12 +148,6 @@ export default class Service {
                 this._config = Object.getPrototypeOf(this)._config;
             }
         }
-
-        if (this.config && this.config.plugins && this.config.plugins.length) {
-            for (const plugin of this.config.plugins) {
-                plugin(this.config);
-            }
-        }
     }
 
     get config() {
@@ -305,9 +299,10 @@ export default class Service {
         }
     }
 
-    request<T = any, R = AxiosResponse<T>, D = any>(method: string, path: string, data: Record<string, any> = {}, config: AxiosRequestConfig<D> = {}): Promise<R> {
+    async request<T = any, R = AxiosResponse<T>, D = any>(method: string, path: string, data: Record<string, any> = {}, config: AxiosRequestConfig<D> = {}): Promise<R> {
         const url = path.indexOf("http") >= 0 ? path : this.config.baseURL + normalizePath(`/${this.path || ""}/${path}`);
-        return this.config.axios.request<T, R, D>(Object.assign({
+        const axios = await this.config.requestAxiosInstance();
+        return axios.request<T, R, D>(Object.assign({
                 method,
                 url,
                 data
@@ -456,7 +451,7 @@ export default class Service {
                 _configs.push(cfg);
                 return controller;
             },
-            send: (data: Record<string, any> = {}) => {
+            send: async (data: Record<string, any> = {}) => {
                 const query = ConfigMapping.querystring(_features, _params, data);
                 const body = ConfigMapping.body(_params, data);
                 const headers = ConfigMapping.requestHeaders(_headers, [data]);
@@ -480,8 +475,9 @@ export default class Service {
                         }
                     }
                 }
+                const axios = await _withConfig.requestAxiosInstance();
                 if (_withConfig) {
-                    return forward<T, R, D>(_withConfig.axios, _withConfig.origin, _withConfig.prefix, this.path, path, method, query, body, config);
+                    return forward<T, R, D>(axios, _withConfig.origin, _withConfig.prefix, this.path, path, method, query, body, config);
                 } else {
                     const p = `${this.pathVariable(path || "", data)}${query ? ((path.lastIndexOf("?") >= 0 ? "&" : "?") + query) : ""}`;
                     return this.request<T, R, D>(method, p, body, config);

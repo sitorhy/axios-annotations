@@ -2,13 +2,18 @@ import {Config} from "axios-annotations";
 import {AuthorizationPlugin} from "axios-annotations/plugins/auth";
 import OAuth2Authorizer from "./oauth2-authorizer";
 
-const config = new Config();
-config.host = "localhost";
-config.port = 8082;
-config.protocol = "http";
-config.prefix = "/api";
-
 const oAuth2Authorizer = new OAuth2Authorizer();
+
+const config = new Config({
+    host: "localhost",
+    port: 8082,
+    protocol: "http",
+    prefix: "/api",
+    plugins: [
+        AuthorizationPlugin(oAuth2Authorizer)
+//    , LogPlugin((e) => console.log(e))
+    ]
+});
 
 function LogPlugin(fnToast) {
     return function (config) {
@@ -24,12 +29,6 @@ function LogPlugin(fnToast) {
         });
     }
 }
-
-
-config.plugins = [
-    AuthorizationPlugin(oAuth2Authorizer)
-//    , LogPlugin((e) => console.log(e))
-];
 
 export const authorizer = oAuth2Authorizer;
 export default config;
