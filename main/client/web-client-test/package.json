@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "react-webpack-boilerplate",
   "repository": "https://github.com/sitorhy/react-webpack-boilerplate.git",
   "version": "1.0.0",

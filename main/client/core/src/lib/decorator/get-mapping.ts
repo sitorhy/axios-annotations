@@ -1,4 +1,4 @@
-import RequestMapping from "./request-mapping.js";
+import RequestMapping from "./request-mapping";
 
 // noinspection JSUnusedGlobalSymbols
 export default function GetMapping(path = "") {

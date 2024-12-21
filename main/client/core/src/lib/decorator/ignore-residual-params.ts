@@ -1,4 +1,4 @@
-import Service from "../core/service.js";
+import Service from "../core/service";
 
 // noinspection JSUnusedGlobalSymbols
 export default function IgnoreResidualParams(ignore?: boolean) {

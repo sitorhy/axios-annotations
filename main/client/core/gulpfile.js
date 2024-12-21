@@ -2,20 +2,24 @@ import gulp from "gulp";
 import gulpTypescript from "gulp-typescript";
 import filter from "gulp-filter";
 import swc from "gulp-swc";
-import * as fs from "node:fs";
+import {existsSync, mkdirSync} from "node:fs";
+import {execSync} from "node:child_process";
+
+const polyfill = process.env.npm_config_polyfill === "true";
 
 // Any options to configure swc: https://swc.rs/docs/configuring-swc
 const swcOptions = {
-    env: {
-        targets: "dead",
-        // mode: "usage",
-        // coreJs: "3.39.0"
-    }
+    env: Object.assign({
+        targets: "dead"
+    }, polyfill ? {
+        mode: "usage",
+        coreJs: "3.39.0"
+    } : null)
 };
 
 gulp.task("compile", async function () {
-    if (!fs.existsSync("./dist")) {
-        fs.mkdirSync("./dist");
+    if (!existsSync("./dist")) {
+        mkdirSync("./dist");
     }
 
     const entries = gulp.src("./src/**/*.ts").pipe(gulpTypescript({
@@ -35,4 +39,13 @@ gulp.task("deploy", async function () {
     gulp.src("../../../LICENSE").pipe(gulp.dest("../release"));
 });
 
-gulp.task("build", gulp.series(["compile", "deploy"]));
+gulp.task("build", gulp.series([
+    async function () {
+        const currentWorkingDir = process.cwd();
+        // 另起进程编译 立即输出文件
+        execSync("gulp compile", {
+            cwd: currentWorkingDir,
+        });
+    },
+    "deploy",
+]));

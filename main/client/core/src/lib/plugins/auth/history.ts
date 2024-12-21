@@ -1,4 +1,4 @@
-import {isNullOrEmpty} from "../../core/common.js";
+import {isNullOrEmpty} from "../../core/common";
 
 /**
  * 缓存过期会话，判断请求是否过期

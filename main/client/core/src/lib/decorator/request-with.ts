@@ -1,4 +1,4 @@
-import Service from "../core/service.js";
+import Service from "../core/service";
 
 export default function RequestWith(configName: string) {
     return function (_target: Function, name: string, descriptor: PropertyDescriptor) {

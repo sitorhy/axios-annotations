@@ -1,4 +1,4 @@
-import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
+import type {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
 
 export function normalizePath(path: string): string {
     return path.replace(/\/+/g, "/").replace(/\/$/, "");

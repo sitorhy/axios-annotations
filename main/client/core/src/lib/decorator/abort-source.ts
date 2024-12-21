@@ -1,4 +1,5 @@
-import Service, {AbortControllerGenerator, type AbortControllerAdapter} from "../core/service.js";
+import Service, {AbortControllerGenerator} from "../core/service";
+import {AbortControllerAdapter} from "../index";
 
 // noinspection JSUnusedGlobalSymbols
 export default function AbortSource(abortController: (AbortController | AbortControllerAdapter) | AbortControllerGenerator) {

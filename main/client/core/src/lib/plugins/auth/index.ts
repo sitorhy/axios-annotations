@@ -1,10 +1,10 @@
-import PendingQueue from "./queue.js";
-import Authorizer from "./authorizer.js";
-import Config from "../../core/config.js";
-import {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
+import PendingQueue from "./queue";
+import Authorizer from "./authorizer";
+import Config from "../../core/config";
+import type {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
-export {default as Authorizer} from "./authorizer.js";
-export {default as SessionStorage} from "./storage.js";
+export {default as Authorizer} from "./authorizer";
+export {default as SessionStorage} from "./storage";
 
 export default function AuthorizationPlugin(authorizer: Authorizer) {
     return function (config: Config) {

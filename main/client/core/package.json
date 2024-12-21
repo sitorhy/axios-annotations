@@ -16,8 +16,10 @@
     "gulp": "^5.0.0",
     "gulp-swc": "^2.2.0",
     "gulp-filter": "^8.0.0",
-    "typescript": "^5.7.2",
     "gulp-typescript": "^5.0.1",
-    "axios": "^1.7.9"
+    "gulp-rollup": "^2.17.0",
+    "typescript": "^5.7.2",
+    "axios": "^1.7.9",
+    "rollup": "^4.29.0"
   }
 }

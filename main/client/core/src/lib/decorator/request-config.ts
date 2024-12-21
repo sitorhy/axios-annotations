@@ -1,4 +1,4 @@
-import Service, {AxiosConfigOptionMappingType} from "../core/service.js";
+import Service, {AxiosConfigOptionMappingType} from "../core/service";
 
 // noinspection JSUnusedGlobalSymbols
 export default function RequestConfig(config: AxiosConfigOptionMappingType) {

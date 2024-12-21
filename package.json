@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev:web": "cd main/client/web-client-test & npm run dev",
-    "build": "cd main/client/core && npm run build",
+    "build": "cd main/client/core && npm run build --polyfill false",
     "clean:packages": "rimraf main/client/core/node_modules & rimraf main/client/core/dist"
   },
   "repository": {

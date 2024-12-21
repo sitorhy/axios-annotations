@@ -1,4 +1,4 @@
-import Service, {HeaderMappingValueType} from "../core/service.js";
+import Service, {HeaderMappingValueType} from "../core/service";
 
 // noinspection JSUnusedGlobalSymbols
 export default function RequestHeader(header: string, value: HeaderMappingValueType) {

@@ -1,4 +1,4 @@
-import Service, {RequestParamEncodeRule} from "../core/service.js";
+import Service, {RequestParamEncodeRule} from "../core/service";
 
 // noinspection JSUnusedGlobalSymbols
 export default function RequestBody(name: string = "body") {

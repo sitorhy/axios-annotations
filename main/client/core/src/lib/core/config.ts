@@ -1,4 +1,5 @@
-import axios, {AxiosInstance} from "axios";
+import axios from "axios";
+import type {AxiosInstance} from "axios";
 
 const _global_configs: { name: string; config: Config }[] = [];
 
