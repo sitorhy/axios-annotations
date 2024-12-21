@@ -13,7 +13,12 @@ import {
     RequestWith
 } from "axios-annotations";
 
-new Config("http", "localhost", 8082, "/pic").register("picConfig");
+new Config({
+    protocol: "http",
+    host: "localhost",
+    port: 8082,
+    prefix: "/pic"
+}).register("picConfig");
 
 @RequestConfig(config)
 @RequestMapping("")

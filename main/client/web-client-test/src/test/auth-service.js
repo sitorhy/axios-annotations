@@ -5,7 +5,7 @@ import {
     RequestConfig,
     RequestMapping,
     RequestBody,
-    RequestHeader
+    RequestHeader, RequestParam
 } from "axios-annotations";
 
 @RequestConfig(config)
@@ -19,9 +19,10 @@ export default class AuthTestService extends Service {
     }
 
     @RequestMapping("/channel2", "POST")
-    @RequestBody("marker")
+    @RequestBody("body")
+    @RequestParam("marker", false)
     @RequestHeader("Content-Type", "text/plain")
     channel2(marker) {
-        return {marker};
+        return {marker, body: marker};
     }
 }

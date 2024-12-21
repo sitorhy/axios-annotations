@@ -650,7 +650,21 @@ import {authorizer} from "/path/config.js";
 
 #### RequestBody(name)
 
-+ name : string `方法返回值属性，默认为 body`
++ name : string `方法返回值属性，默认为 body，不能与 RequestParam name 参数重复，如果重复 RequestBody 请使用别名`,
+```javascript
+class TestService extends Service {
+  @RequestMapping("/foo", "POST")
+  @RequestHeader("Content-Type", "text/plain")
+  @RequestParam("str", true)
+  @RequestParam("strRepeat", true)
+  foo(str) {
+    return {
+      p2: str,
+      strRepeat: str
+    };
+  }
+}
+```
 
 #### IgnoreResidualParams(ignore?)
 + ignore : boolean `拼接 QueryString 时是否忽略没有声明的参数`

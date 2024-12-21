@@ -1,8 +1,4 @@
-import AuthTestService from "./auth-service";
-
-export default async function (channel, marker) {
-    const service = new AuthTestService();
-
+export default async function (channel, marker, service) {
     try {
         if (channel === "channel1") {
             const res = await service.channel1(marker);

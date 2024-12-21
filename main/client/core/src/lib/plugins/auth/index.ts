@@ -1,18 +1,39 @@
 import PendingQueue from "./queue";
 import Authorizer from "./authorizer";
 import Config from "../../core/config";
-import type {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
+import type {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
 export {default as Authorizer} from "./authorizer";
 export {default as SessionStorage} from "./storage";
 
-export default function AuthorizationPlugin(authorizer: Authorizer) {
-    return function (config: Config) {
+export default function AuthorizationPlugin(
+    authorizer: Authorizer,
+    options?: {
+        minTryRetryInterval: number;
+        maxTryRetryInterval: number;
+        retryTimes: number;
+    }
+) {
+    return function (axios: AxiosInstance, config: Config) {
         let unauthorized: boolean = false;
         let expiredSession: Record<string, any> | null = null;
-        const queue = new PendingQueue(authorizer);
+        const queue = new PendingQueue(
+            authorizer,
+            config,
+            options?.minTryRetryInterval || 3000,
+            options?.maxTryRetryInterval || 5000,
+            options?.retryTimes || 3
+        );
 
-        config.axios.interceptors.response.use(i => {
+        new PendingQueue(
+            authorizer,
+            config,
+            options?.minTryRetryInterval || 3000,
+            options?.maxTryRetryInterval || 5000,
+            options?.retryTimes || 3
+        );
+
+        axios.interceptors.response.use(i => {
             if (expiredSession) {
                 // Previously requests sent have been rejected, record and release it (will be resending)
                 authorizer.sessionHistory.add(expiredSession);
@@ -94,7 +115,7 @@ export default function AuthorizationPlugin(authorizer: Authorizer) {
             }
         });
 
-        config.axios.interceptors.request.use(async function (request) {
+        axios.interceptors.request.use(async function (request) {
             const session = await authorizer.getSession();
             authorizer.withAuthentication(request, session);
             return request;

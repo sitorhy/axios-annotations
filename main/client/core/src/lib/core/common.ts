@@ -8,7 +8,17 @@ export function isNullOrEmpty(param: any): boolean {
     return param === null || param === undefined || param === "";
 }
 
-export function forward<T = any, R = AxiosResponse<T>, D = any>(axios: AxiosInstance, origin: string, prefix1: string, prefix2: string, path: string, method: string, query: string, body: D, config: AxiosRequestConfig<D>): Promise<R> {
+export async function forward<T = any, R = AxiosResponse<T>, D = any>(
+    axios: AxiosInstance,
+    origin: string,
+    prefix1: string,
+    prefix2: string,
+    path: string,
+    method: string,
+    query: string,
+    body: D,
+    config: AxiosRequestConfig<D>
+): Promise<R> {
     let url = `${origin}` + normalizePath(`/${prefix1}/${prefix2}/${path}`);
     if (query) {
         if (url.lastIndexOf("?") >= 0) {
