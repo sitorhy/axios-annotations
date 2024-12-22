@@ -289,7 +289,7 @@ class Home extends React.Component {
                                         {
                                             basic.result[i].indexOf('data:image') >= 0 ?
                                                 <img src={basic.result[i]} alt={'图片'}/> :
-                                                <div dangerouslySetInnerHTML={basic.result[i]}></div>
+                                                <div>{basic.result[i]}></div>
                                         }
                                     </td>
                                 </tr>
