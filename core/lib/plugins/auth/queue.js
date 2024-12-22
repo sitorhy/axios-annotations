@@ -41,7 +41,7 @@ export default class PendingQueue {
                 return await this._axios.request(error.config);
             } catch (e) {
                 if (i >= retries - 1) {
-                    break;
+                    throw e;
                 }
             }
         }
