@@ -1,7 +1,7 @@
 import AxiosStaticInstanceProvider from "./provider";
-import {AxiosInstance} from "axios";
+import type {AxiosInstance} from "axios";
 
-export type ConfigPlugin = (...args: unknown[]) => (config: Config) => void;
+export type ConfigPlugin = (axios: AxiosInstance, config: Config) => void;
 export type PartialConstructorString = string | null;
 export type PartialConstructorNumber = number | null;
 export type PartialPluginConstructorPlugins = ConfigPlugin[] | null;
@@ -15,7 +15,7 @@ export default class Config {
     private _prefix: string = "";
     private _axiosProvider: AxiosStaticInstanceProvider = new AxiosStaticInstanceProvider();
     private _axios: AxiosInstance | null = null;
-    private _plugins: ConfigPlugin[] = [];
+    private _plugins: PartialPluginConstructorPlugins = null;
 
     constructor(
         options?: {
@@ -23,9 +23,13 @@ export default class Config {
             host?: PartialConstructorString;
             port?: PartialConstructorNumber;
             prefix?: PartialConstructorString;
-            plugins?: PartialPluginConstructorPlugins
+            plugins?: PartialPluginConstructorPlugins,
+            axiosProvider?: AxiosStaticInstanceProvider,
         }
     ) {
+        if (options?.axiosProvider) {
+            this._axiosProvider = options?.axiosProvider;
+        }
         this.init(
             options?.protocol || null,
             options?.host || null,
@@ -111,11 +115,11 @@ export default class Config {
         return `${this.origin}${this.prefix}`;
     }
 
-    get plugins(): ConfigPlugin[] {
+    get plugins(): PartialPluginConstructorPlugins {
         return this._plugins;
     }
 
-    set plugins(value: ConfigPlugin[]) {
+    set plugins(value: PartialPluginConstructorPlugins) {
         this._plugins = value;
     }
 
@@ -159,10 +163,16 @@ export default class Config {
         if (this._axios) {
             return this._axios;
         }
-        this._axios = (await this._axiosProvider.get()).create();
-        this._plugins.forEach(plugin => {
-            plugin(this._axios, this);
-        });
+        try {
+            this._axios = (await this._axiosProvider.get()).create();
+        } catch (e) {
+            throw e;
+        }
+        if (this._plugins && this._plugins.length) {
+            this._plugins.forEach(plugin => {
+                plugin(this._axios as AxiosInstance, this);
+            });
+        }
         return this._axios;
     }
 }

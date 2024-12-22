@@ -1,6 +1,7 @@
 import PendingQueue from "./queue";
 import Authorizer from "./authorizer";
 import Config from "../../core/config";
+import type {ConfigPlugin} from "../../core/config";
 import type {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
 export {default as Authorizer} from "./authorizer";
@@ -13,7 +14,7 @@ export default function AuthorizationPlugin(
         maxTryRetryInterval: number;
         retryTimes: number;
     }
-) {
+): ConfigPlugin {
     return function (axios: AxiosInstance, config: Config) {
         let unauthorized: boolean = false;
         let expiredSession: Record<string, any> | null = null;

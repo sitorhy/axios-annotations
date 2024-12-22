@@ -5,6 +5,7 @@ export {config} from "./core/config";
 export {default as URLSearchParamsParser} from "./core/parser";
 export {default as Service} from "./core/service";
 export {default as AbortControllerAdapter} from "./core/cancel";
+export {default as AxiosStaticInstanceProvider} from "./core/provider";
 export {default as AbortSource} from "./decorator/abort-source";
 export {default as DeleteMapping} from "./decorator/delete-mapping";
 export {default as GetMapping} from "./decorator/get-mapping";

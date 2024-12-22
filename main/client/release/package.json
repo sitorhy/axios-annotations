@@ -3,6 +3,8 @@
   "version": "2.0.0",
   "description": "HTTP client library uses Axios without Typescript.",
   "main": "index.js",
+  "miniprogram": "lib",
+  "miniprogramRoot": "lib",
   "keywords": [
     "axios",
     "axios-annotations",

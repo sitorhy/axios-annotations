@@ -5,6 +5,7 @@ export {
     config,
     URLSearchParamsParser,
     AbortControllerAdapter,
+    AxiosStaticInstanceProvider,
     Service,
     AbortSource,
     DeleteMapping,
@@ -19,5 +20,5 @@ export {
     RequestMapping,
     RequestParam,
     RequestWith
-} from "./lib";
+} from "./lib/index";
 
