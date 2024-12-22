@@ -1,0 +1,6 @@
+<view class="main">
+    <t-button theme="primary" bind:tap="onTestClick">测试</t-button>
+    <textarea value="{{result}}"></textarea>
+    <t-button theme="primary" bind:tap="onTestClick2">测试2</t-button>
+    <image mode="aspectFill" src="{{base64}}" wx:if="{{!!base64}}" />
+</view>
