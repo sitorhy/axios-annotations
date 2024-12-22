@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "axios-annotations",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "HTTP client library uses Axios without Typescript.",
   "main": "index.js",
   "scripts": {

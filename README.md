@@ -115,8 +115,17 @@ ApiCommon.test.get("a","b",null);
   ]
 }
 ```
+tsconfig.json / jsconfig.json
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
 
-`vue-cli`、`vite`等脚手架已默认支持装饰器，微信小程序说明请拉到末尾。
+`vue-cli`等脚手架已默认支持装饰器，微信小程序说明请拉到末尾。
 <br>接口方法只需要处理和返回参数，并注解参数类型，框架根据注解分拆参数并注入`HTTP`请求。
 
 ```javascript
