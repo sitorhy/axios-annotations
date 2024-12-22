@@ -1,13 +1,17 @@
 import Service from "../core/service";
+import type {AxiosPromise} from "axios";
 
-export default function RequestWith(configName: string) {
-    return function (_target: Function, name: string, descriptor: PropertyDescriptor) {
+type DecoratorMethodType = (...args: any[]) => AxiosPromise;
+type DescriptorType = TypedPropertyDescriptor<DecoratorMethodType>;
+
+export default function RequestWith(configName: string): MethodDecorator {
+    return function (_target: Function, name: string, descriptor: DescriptorType) {
         if (descriptor) {
-            const fn = descriptor.value;
-            descriptor.value = function () {
+            const fn: DecoratorMethodType = descriptor.value as DecoratorMethodType;
+            descriptor.value = function (...args: any[]) {
                 (this as Service).for(name, configName);
-                return fn.apply(this, arguments);
+                return fn.apply(this, args);
             };
         }
-    };
+    } as MethodDecorator;
 }

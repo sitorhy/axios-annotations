@@ -1,13 +1,20 @@
 import Config from "../core/config";
-import {forward} from "../core/common";
+import {forward, mapToDefaultMethod} from "../core/common";
 import Service from "../core/service";
+import type {AxiosPromise} from "axios";
 
-export default function RequestMapping(path: string, method?: string) {
-    return function (target: Function, name: string, descriptor: PropertyDescriptor) {
+type DecoratorTargetType<M> = M extends string ? MethodDecorator : ClassDecorator;
+type DecoratorMethodType = (...args: any[]) => AxiosPromise;
+type DescriptorType<M> = M extends string ? TypedPropertyDescriptor<DecoratorMethodType> : void;
+
+export default function RequestMapping<M = undefined>(path: string, method?: M): DecoratorTargetType<M> {
+    return function (target: Function, name: string, descriptor: DescriptorType<M>) {
         if (!descriptor) {
+            // 注解类
             target.prototype._path = path;
         } else {
-            const fn = descriptor.value;
+            // 不可能为空
+            const fn: DecoratorMethodType = descriptor.value as DecoratorMethodType;
 
             descriptor.value = function (...args: any[]) {
                 const data: Promise<any> | any = fn.apply(this, args) || {};
@@ -29,10 +36,10 @@ export default function RequestMapping(path: string, method?: string) {
                             } = (this as Service).createRequestConfig(name, (this as Service).pathVariable(path || "", d), d, args, args);
                             if (withConfig) {
                                 withConfig.requestAxiosInstance().then(axios => {
-                                    forward(axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, method || "GET", query, body, config).then(resolve).catch(reject);
+                                    forward(axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, mapToDefaultMethod(method, "GET"), query, body, config).then(resolve).catch(reject);
                                 });
                             } else {
-                                (this as Service).request(method || "GET", p, body, config).then(resolve).catch(reject);
+                                (this as Service).request(mapToDefaultMethod(method, "GET"), p, body, config).then(resolve).catch(reject);
                             }
                         });
                     });
@@ -47,14 +54,14 @@ export default function RequestMapping(path: string, method?: string) {
                     if (withConfig) {
                         return new Promise((resolve, reject) => {
                             withConfig.requestAxiosInstance().then(axios => {
-                                return forward(axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, method || "GET", query, body, config).then(resolve).catch(reject);
+                                return forward(axios, withConfig.origin, withConfig.prefix, (this as Service).path, path, mapToDefaultMethod(method, "GET"), query, body, config).then(resolve).catch(reject);
                             });
                         });
                     } else {
-                        return (this as Service).request(method || "GET", p, body, config);
+                        return (this as Service).request(mapToDefaultMethod(method, "GET"), p, body, config);
                     }
                 }
             };
         }
-    };
+    } as DecoratorTargetType<M>;
 }

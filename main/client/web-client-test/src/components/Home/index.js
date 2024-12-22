@@ -205,7 +205,7 @@ class Home extends React.Component {
 
     // 静态注入： AbortController只能用一次
     staticHeavyAbort() {
-        testAbortController.signal.onabort = function(e) {
+        testAbortController.signal.onabort = function (e) {
             console.log(e);
             console.log("static controller aborted");
         };
@@ -286,7 +286,11 @@ class Home extends React.Component {
                                         {i}
                                     </td>
                                     <td>
-                                        <div dangerouslySetInnerHTML={{__html: basic.result[i]}}></div>
+                                        {
+                                            basic.result[i].indexOf('data:image') >= 0 ?
+                                                <img src={basic.result[i]} alt={'图片'}/> :
+                                                <div dangerouslySetInnerHTML={basic.result[i]}></div>
+                                        }
                                     </td>
                                 </tr>
                             })

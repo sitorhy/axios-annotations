@@ -39,3 +39,7 @@ export function replaceAllStr(target: string, search: string | RegExp, replaceme
     const pattern = typeof search === 'string' ? RegExp(search, 'g') : search;
     return target.replace(pattern, replacement);
 }
+
+export function mapToDefaultMethod(method: any, defaultMethod: string = "GET") {
+    return typeof method === "string" ? method : defaultMethod;
+}
