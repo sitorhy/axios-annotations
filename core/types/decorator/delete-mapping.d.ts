@@ -1,1 +1,0 @@
-export default function DeleteMapping(path?: string): ((target: any) => any);
