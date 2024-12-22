@@ -1,1 +1,0 @@
-export default function PostMapping(path?: string): ((target: any) => any);

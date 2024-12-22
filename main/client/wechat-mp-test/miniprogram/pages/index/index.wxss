@@ -1,0 +1,9 @@
+.main {
+    text-align: center;
+}
+
+textarea {
+    text-align: left;
+    border: solid 1px #000;
+    margin: auto;
+}

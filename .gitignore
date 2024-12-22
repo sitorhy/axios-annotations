@@ -178,3 +178,7 @@ $RECYCLE.BIN/
 /.idea
 /pages/test
 /main/vue/yarn.lock
+/main/client/release/**/*.js
+/main/client/release/**/*.ts
+/main/client/release/LICENSE
+/main/client/release/*.md

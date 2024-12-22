@@ -1,0 +1,16 @@
+{
+  "name": "axios-annotations",
+  "version": "2.0.0",
+  "description": "HTTP client library uses Axios without Typescript.",
+  "main": "index.js",
+  "miniprogram": "lib",
+  "miniprogramRoot": "lib",
+  "keywords": [
+    "axios",
+    "axios-annotations",
+    "axios-decorators"
+  ],
+  "author": "sitorhy",
+  "license": "MIT",
+  "homepage": "https://github.com/sitorhy/axios-annotations#readme"
+}

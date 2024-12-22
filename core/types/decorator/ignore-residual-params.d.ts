@@ -1,1 +1,0 @@
-export default function IgnoreResidualParams(ignore?: boolean): ((target: any) => any);
