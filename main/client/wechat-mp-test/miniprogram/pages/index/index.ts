@@ -14,16 +14,13 @@ Page({
         console.log(envVersion);
 
         const res = await ApiCommon.basic.postMessage(`this ${envVersion} env`, "wechat mini program");
-        // @ts-ignore
         console.log(res?.data);
         this.setData({
-            // @ts-ignore
             result: JSON.stringify(res?.data, null, 2)
         });
     },
     async onTestClick2() {
         const res = await ApiCommon.pic.getPic();
-        // @ts-ignore
         const base64 = res.data as string;
         this.setData({
             base64

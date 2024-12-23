@@ -2,7 +2,7 @@ import {
     Service,
     Config,
     RequestConfig,
-    AxiosStaticInstanceProvider, GetMapping,
+    AxiosStaticInstanceProvider, GetMapping, Expect,
 } from "axios-annotations";
 
 import mpAxios from 'axios-miniprogram';
@@ -26,6 +26,6 @@ export default class PicTestService extends Service {
 
     @GetMapping("/get-image")
     async getPic() {
-        return {};
+        return Expect({});
     }
 }

@@ -19,6 +19,7 @@ export {
     RequestHeader,
     RequestMapping,
     RequestParam,
-    RequestWith
+    RequestWith,
+    Expect
 } from "./lib/index";
 

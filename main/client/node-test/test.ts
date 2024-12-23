@@ -5,7 +5,8 @@ import {
     RequestBody,
     RequestMapping,
     RequestHeader,
-    RequestParam, Expect,
+    RequestParam,
+    Expect,
 } from "axios-annotations";
 
 const config = new Config({
@@ -23,10 +24,19 @@ export default class BasicTestService extends Service {
     @RequestMapping("/message", "POST")
     @RequestHeader("Content-Type", "text/plain")
     @RequestParam("from", false)
-    postMessage(message, from) {
-        return Expect({
+    postMessage(message: string, from: string) {
+        return Expect<string>({
             body: message,
             from
         });
     }
 }
+
+async function run() {
+    const { data: responseMsg } = await new BasicTestService().postMessage("Hello", "nodejs");
+    console.log(responseMsg);
+}
+
+run().then(r => {
+   // ignore
+});

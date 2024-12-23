@@ -1,0 +1,23 @@
+{
+  "name": "node-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "node index.js",
+    "run": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@sitorhy.github:sitorhy/axios-annotations.git"
+  },
+  "dependencies": {
+    "@swc/cli": "^0.5.2",
+    "@swc/core": "^1.10.1",
+    "typescript": "^5.7.2",
+    "axios": "^1.7.9",
+    "axios-annotations": "workspace:*"
+  },
+  "private": true
+}

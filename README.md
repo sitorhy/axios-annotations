@@ -185,6 +185,49 @@ ApiCommon.test.get("a","b",null);
 
 如果不爽部分IDE的`non-promise inspection info`下划线，也可以给方法加上`async`。
 
+### 代码提示
+
+> Expect<ResponseType, PromiseType = AxiosPromise<ResponseType>>
+
+`Typescript`不支持装饰器修改方法返回值，但是可以绕开检查。<br/>
+
+Using a method decorator can not change the function return type.<br/>
+
+使用`Expect`绕过类型检查，获得代码提示功能。<br/>
+
+Using `Expect` to bypass type-checking and get code intelligence.
+
+```typescript
+import {Expect} from "axios-annotations";
+
+// ...
+
+export default class TestService extends Service {
+    @RequestBody()
+    @RequestMapping("/message", "POST")
+    @RequestHeader("Content-Type", "text/plain")
+    postMessage(message: string) {
+        return Expect<{
+            data: string;
+            success: boolean;
+        }>({
+            body: message
+        });
+    }
+}
+
+// call method, the return value can be deconstructed by IDE
+
+const res: AxiosResponse<{
+    data:string;
+    success:boolean;
+}> = await new TestService().postMessage("foo");
+
+console.log(res.data.data);
+```
+
+
+
 ### QueryString Encoding
 
 `key-values pair`转查询串算法，运行环境不支持`URLSearchParams`时使用默认算法，也可以自定义。

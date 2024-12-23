@@ -2,6 +2,7 @@
 
 export {default as Config} from "./core/config";
 export {config} from "./core/config";
+export {default as Expect} from "./core/expect";
 export {default as URLSearchParamsParser} from "./core/parser";
 export {default as Service} from "./core/service";
 export {default as AbortControllerAdapter} from "./core/cancel";
@@ -19,4 +20,3 @@ export {default as RequestHeader} from "./decorator/request-header";
 export {default as RequestMapping} from "./decorator/request-mapping";
 export {default as RequestParam} from "./decorator/request-param";
 export {default as RequestWith} from "./decorator/request-with";
-

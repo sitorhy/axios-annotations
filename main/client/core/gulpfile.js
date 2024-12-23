@@ -29,6 +29,8 @@ gulp.task("compile", async function () {
         outDir: "./dist"
     }));
 
+    gulp.src("./src/lib/core/expect.*").pipe(gulp.dest("./dist/lib/core"));
+
     entries.pipe(filter(["**/*.d.ts"])).pipe(gulp.dest("./dist"));
     entries.pipe(filter(["**/*.js", "!**/*.d.ts"])).pipe(swc(swcOptions)).pipe(gulp.dest("./dist"));
 });
