@@ -131,9 +131,9 @@ tsconfig.json / jsconfig.json
 ```javascript
 import {
   Service,
-  equestConfig,
-  equestParam,
-  equestMapping,
+  RequestConfig,
+  RequestParam,
+  RequestMapping,
   RequestBody,
   RequestHeader,
   IgnoreResidualParams
