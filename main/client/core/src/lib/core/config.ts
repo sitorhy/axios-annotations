@@ -1,21 +1,23 @@
 import AxiosStaticInstanceProvider from "./provider";
-import type {AxiosInstance} from "axios";
+import type {AxiosInstance, AxiosStatic} from "axios";
 
-export type ConfigPlugin = (axios: AxiosInstance, config: Config) => void;
+export type ConfigPlugin<StaticType = AxiosStatic, InstanceType = AxiosInstance> = (axios: InstanceType, config: Config<StaticType, InstanceType>) => void;
 export type PartialConstructorString = string | null;
 export type PartialConstructorNumber = number | null;
-export type PartialPluginConstructorPlugins = ConfigPlugin[] | null;
+export type PartialPluginConstructorPlugins<StaticType = AxiosStatic, InstanceType = AxiosInstance> =
+    ConfigPlugin<StaticType, InstanceType>[]
+    | null;
 
-const _global_configs: { name: string; config: Config }[] = [];
+const _global_configs: Array<{ name: string; config: unknown }> = [];
 
-export default class Config {
+export default class Config<StaticType = AxiosStatic, InstanceType = AxiosInstance> {
     private _host: string = "localhost";
     private _port: number = 8080;
     private _protocol: string = "http";
     private _prefix: string = "";
-    private _axiosProvider: AxiosStaticInstanceProvider = new AxiosStaticInstanceProvider();
-    private _axios: AxiosInstance | null = null;
-    private _plugins: PartialPluginConstructorPlugins = null;
+    private _axiosProvider: AxiosStaticInstanceProvider<StaticType> = new AxiosStaticInstanceProvider<StaticType>();
+    private _axios: InstanceType | null = null;
+    private _plugins: PartialPluginConstructorPlugins<StaticType, InstanceType> = null;
 
     constructor(
         options?: {
@@ -23,8 +25,8 @@ export default class Config {
             host?: PartialConstructorString;
             port?: PartialConstructorNumber;
             prefix?: PartialConstructorString;
-            plugins?: PartialPluginConstructorPlugins,
-            axiosProvider?: AxiosStaticInstanceProvider,
+            plugins?: PartialPluginConstructorPlugins<StaticType, InstanceType>,
+            axiosProvider?: AxiosStaticInstanceProvider<StaticType>,
         }
     ) {
         if (options?.axiosProvider) {
@@ -40,15 +42,21 @@ export default class Config {
     }
 
     static forName(name: string): Config | null {
-        const c = _global_configs.find(i => i.name === name);
+        const c = (_global_configs).find(i => i.name === name);
         if (c) {
-            return c.config;
+            return c.config as Config;
         } else {
             return null;
         }
     }
 
-    init(protocol: PartialConstructorString, host: PartialConstructorString, port: PartialConstructorNumber, prefix: PartialConstructorString, plugins: PartialPluginConstructorPlugins): void {
+    init(
+        protocol: PartialConstructorString,
+        host: PartialConstructorString,
+        port: PartialConstructorNumber,
+        prefix: PartialConstructorString,
+        plugins: PartialPluginConstructorPlugins<StaticType, InstanceType>
+    ): void {
         if (port) {
             this.port = port;
         }
@@ -115,19 +123,19 @@ export default class Config {
         return `${this.origin}${this.prefix}`;
     }
 
-    get plugins(): PartialPluginConstructorPlugins {
+    get plugins(): PartialPluginConstructorPlugins<StaticType, InstanceType> {
         return this._plugins;
     }
 
-    set plugins(value: PartialPluginConstructorPlugins) {
+    set plugins(value: PartialPluginConstructorPlugins<StaticType, InstanceType>) {
         this._plugins = value;
     }
 
-    get axiosProvider(): AxiosStaticInstanceProvider {
+    get axiosProvider(): AxiosStaticInstanceProvider<StaticType> {
         return this._axiosProvider;
     }
 
-    set axiosProvider(value: AxiosStaticInstanceProvider) {
+    set axiosProvider(value: AxiosStaticInstanceProvider<StaticType>) {
         this._axiosProvider = value;
     }
 
@@ -136,7 +144,7 @@ export default class Config {
      * @param name
      * @return {Config} config self
      */
-    register(name: string): Config {
+    register(name: string): Config<StaticType, InstanceType> {
         const c = _global_configs.find(i => i.config === this);
         if (c) {
             c.name = name;
@@ -151,7 +159,7 @@ export default class Config {
      * remove self from global config store.
      * @return {Config} - config self
      */
-    unregister(): Config {
+    unregister(): Config<StaticType, InstanceType> {
         const index = _global_configs.findIndex(i => i.config === this);
         if (index >= 0) {
             _global_configs.splice(index, 1);
@@ -159,18 +167,18 @@ export default class Config {
         return this;
     }
 
-    async requestAxiosInstance(): Promise<AxiosInstance> {
+    async requestAxiosInstance(): Promise<InstanceType> {
         if (this._axios) {
             return this._axios;
         }
         try {
-            this._axios = (await this._axiosProvider.get()).create();
+            this._axios = ((await this._axiosProvider.get()) as AxiosStatic).create() as InstanceType;
         } catch (e) {
             throw e;
         }
         if (this._plugins && this._plugins.length) {
             this._plugins.forEach(plugin => {
-                plugin(this._axios as AxiosInstance, this);
+                plugin(this._axios as InstanceType, this);
             });
         }
         return this._axios;

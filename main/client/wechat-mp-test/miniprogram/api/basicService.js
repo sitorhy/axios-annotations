@@ -5,7 +5,8 @@ import {
     RequestBody,
     RequestMapping,
     RequestHeader,
-    RequestParam, Expect,
+    RequestParam,
+    Expect,
 } from "axios-annotations";
 
 const config = new Config({

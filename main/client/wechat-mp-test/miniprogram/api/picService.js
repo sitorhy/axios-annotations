@@ -2,13 +2,15 @@ import {
     Service,
     Config,
     RequestConfig,
-    AxiosStaticInstanceProvider, GetMapping, Expect,
+    AxiosStaticInstanceProvider,
+    GetMapping,
+    Expect,
 } from "axios-annotations";
 
 import mpAxios from 'axios-miniprogram';
 
 class ThirdAxiosStaticInstanceProvider extends AxiosStaticInstanceProvider {
-    provide() {
+    async provide() {
         console.log("第三方实现");
         return mpAxios;
     }
