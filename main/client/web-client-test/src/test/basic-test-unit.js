@@ -7,11 +7,22 @@ export default async function testUnit() {
     try {
         const res = await service.hello("world");
         Object.assign(results, {
-            "/hello": res.data
+            "/hello [GET]": res.data
         });
     } catch (e) {
         Object.assign(results, {
-            "/hello": e.message
+            "/hello [GET]": e.message
+        });
+    }
+
+    try {
+        const res = await service.helloPost("world");
+        Object.assign(results, {
+            "/hello [POST]": res.data
+        });
+    } catch (e) {
+        Object.assign(results, {
+            "/hello [POST]": e.message
         });
     }
 

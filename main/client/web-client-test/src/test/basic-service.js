@@ -25,6 +25,8 @@ new Config({
 export default class BasicTestService extends Service {
 
     @RequestParam("word", true)
+    @RequestParam("param1", false)
+    @RequestParam("param2", false)
     @RequestMapping("/hello", "GET")
     @IgnoreResidualParams()
     hello(word) {
@@ -37,7 +39,7 @@ export default class BasicTestService extends Service {
 
     /*
     hello(word) {
-        return this.requestWith("GET", "/hello")
+        return this.requestWith("GET", `/hello?param2={param2}`)
             .param("word", true)
             .ignoreResidualParams(false)
             .send({
@@ -47,6 +49,20 @@ export default class BasicTestService extends Service {
             });
     }
      */
+
+
+    @RequestParam("word", true)
+    @RequestParam("param1", false)
+    @RequestParam("param2", false)
+    @RequestMapping(`/{path}?param2={param3}`, "POST")
+    @IgnoreResidualParams()
+    helloPost(word) {
+        return {
+            word,
+            path: "hello",
+            param1: "附加参数1",
+        };
+    }
 
     @RequestBody()
     @RequestMapping("/message", "POST")

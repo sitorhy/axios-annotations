@@ -274,7 +274,7 @@ class Home extends React.Component {
                                 <th>地址</th>
                             </td>
                             <td>
-                                <th>返回結果</th>
+                                <th>返回结果</th>
                             </td>
                         </tr>
                         </thead>
@@ -289,7 +289,7 @@ class Home extends React.Component {
                                         {
                                             basic.result[i].indexOf('data:image') >= 0 ?
                                                 <img src={basic.result[i]} alt={'图片'}/> :
-                                                <div>{basic.result[i]}></div>
+                                                <div>{basic.result[i]}</div>
                                         }
                                     </td>
                                 </tr>

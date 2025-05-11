@@ -12,9 +12,14 @@ import java.util.Date;
 @RequestMapping("/test")
 public class PublicController {
     @GetMapping("/hello")
-    public String hello(@RequestParam String word) {
+    public String hello(@RequestParam String word, @RequestParam(required = false) String param1, @RequestParam(required = false) String param2) {
         log.info("word = " + word);
-        return "hello " + word;
+        return "hello " + word + " param1=" + param1 + " param2=" + param2;
+    }
+
+    @PostMapping("/hello")
+    public String helloPost(@RequestParam String word, @RequestParam(required = false) String param1, @RequestParam(required = false) String param2) {
+        return "hello " + word + " param1=" + param1 + " param2=" + param2;
     }
 
     @PostMapping("/message")
