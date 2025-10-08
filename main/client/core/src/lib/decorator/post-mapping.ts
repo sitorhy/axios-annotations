@@ -1,6 +1,6 @@
 import RequestMapping from "./request-mapping";
 
 // noinspection JSUnusedGlobalSymbols
-export default function PostMapping(path = "") {
-    return RequestMapping(path, "POST");
+export default function PostMapping<M = undefined>(path = "") {
+    return RequestMapping<M>(path, "POST") as MethodDecorator;
 }

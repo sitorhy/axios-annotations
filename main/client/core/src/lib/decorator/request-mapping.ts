@@ -7,7 +7,7 @@ type DecoratorTargetType<M> = M extends string ? MethodDecorator : ClassDecorato
 type DecoratorMethodType = (...args: any[]) => AxiosPromise;
 type DescriptorType<M> = M extends string ? TypedPropertyDescriptor<DecoratorMethodType> : void;
 
-export default function RequestMapping<M = undefined>(path: string, method?: M): DecoratorTargetType<M> {
+export default function RequestMapping<M = undefined>(path: string, method?: M | string): DecoratorTargetType<M> {
     return function (target: Function, name: string, descriptor: DescriptorType<M>) {
         if (!descriptor) {
             // 注解类
