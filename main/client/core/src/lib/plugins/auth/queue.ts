@@ -49,6 +49,7 @@ export default class PendingQueue {
 
     async resend(error: AxiosError, retries = 3): Promise<any> {
         const maxTimes = Math.max(this._retryTimes, retries, 1);
+        console.log(maxTimes)
         for (let i = 0; i < maxTimes; i++) {
             if (i > 0) {
                 await sleep(random(this._minTryRetryInterval, this._maxTryRetryInterval));
@@ -61,20 +62,11 @@ export default class PendingQueue {
             try {
                 // fix: 修复 401 循环，脱离插件重发
                 const axios = ((await this._config.axiosProvider.get()) as AxiosStatic).create();
-                const config = {
-                    headers: {
-                        ...error.config?.headers,
-                    },
-                    url: error.config?.url,
-                    method: error.config?.method,
-                    data: error.config?.data,
-                    params: error.config?.params,
-                    baseURL: error.config?.baseURL,
-                };
-                this._authorizer.withAuthentication(config as InternalAxiosRequestConfig, session);
-                return await axios.request(config as InternalAxiosRequestConfig);
+                this._authorizer.withAuthentication(error.config as InternalAxiosRequestConfig, session);
+                // fix: 401 循环 忘了加 await
+                return await axios.request(error.config as InternalAxiosRequestConfig);
             } catch (e) {
-                if (i >= maxTimes - 1) {
+                if (i >= maxTimes) {
                     throw e;
                 }
             }
