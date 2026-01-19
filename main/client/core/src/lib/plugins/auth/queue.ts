@@ -1,4 +1,4 @@
-import type {AxiosError, InternalAxiosRequestConfig} from "axios";
+import type {AxiosError, AxiosStatic, InternalAxiosRequestConfig} from "axios";
 import Authorizer from "./authorizer";
 import {Config} from "../../index";
 
@@ -48,7 +48,9 @@ export default class PendingQueue {
     }
 
     async resend(error: AxiosError, retries = 3): Promise<any> {
-        for (let i = 0; i < this._retryTimes; ++i) {
+        const maxTimes = Math.max(this._retryTimes, retries, 1);
+        console.log(maxTimes)
+        for (let i = 0; i < maxTimes; i++) {
             if (i > 0) {
                 await sleep(random(this._minTryRetryInterval, this._maxTryRetryInterval));
             }
@@ -58,11 +60,13 @@ export default class PendingQueue {
                 throw error;
             }
             try {
-                const axios = await this._config.requestAxiosInstance();
+                // fix: 修复 401 循环，脱离插件重发
+                const axios = ((await this._config.axiosProvider.get()) as AxiosStatic).create();
                 this._authorizer.withAuthentication(error.config as InternalAxiosRequestConfig, session);
-                return axios.request(error.config as InternalAxiosRequestConfig);
+                // fix: 401 循环 忘了加 await
+                return await axios.request(error.config as InternalAxiosRequestConfig);
             } catch (e) {
-                if (i >= retries - 1) {
+                if (i >= maxTimes) {
                     throw e;
                 }
             }
