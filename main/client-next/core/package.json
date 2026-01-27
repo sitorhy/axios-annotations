@@ -1,0 +1,21 @@
+{
+  "name": "axios-annotations-next",
+  "version": "3.0.0",
+  "description": "HTTP client library uses Axios without Typescript.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "gulp"
+  },
+  "keywords": [
+    "axios",
+    "axios-annotations",
+    "axios-decorators"
+  ],
+  "author": "sitorhy",
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^5.0.1",
+    "axios": "^1.13.3"
+  }
+}
