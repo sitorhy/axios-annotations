@@ -1,4 +1,4 @@
-import type {AxiosRequestConfig, Method} from 'axios';
+import type {AxiosRequestConfig, AxiosResponse, Method} from 'axios';
 import type Config from "./config";
 import {deepMerge, isNullOrEmpty, normalizePath} from "./common";
 
@@ -237,7 +237,7 @@ export default class RequestBuilder {
         return mergeConfigs;
     }
 
-    async buildWith(config: Config, path: string, method: Method, source: Record<string, any> = {}) {
+    async buildWith(config: Config, path: string, method: Method, source: Record<string, any> = {}): Promise<AxiosResponse<any>> {
         const axiosInstance = await config.requestAxiosInstance();
         return axiosInstance.request(this.build(config, path, method, source));
     }
