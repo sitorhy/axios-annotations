@@ -1,2 +1,3 @@
 packages:
   - main/client/*
+  - main/client-next/*

@@ -4,6 +4,7 @@
   "description": "HTTP client library uses Axios without Typescript.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "gulp"
   },
@@ -16,6 +17,10 @@
   "license": "MIT",
   "dependencies": {
     "gulp": "^5.0.1",
+    "gulp-swc": "^2.2.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "gulp-filter": "^9.0.1",
+    "typescript": "^5.9.3",
     "axios": "^1.13.3"
   }
 }
