@@ -1,6 +1,6 @@
+import {AxiosRequestConfig} from "axios";
 import Config from "../core/config";
 import type Service from "../core/service";
-import {AxiosRequestConfig} from "axios";
 import {castToMetaDescriptor} from "../core/common";
 import {AxiosConfigMapper} from "../core/builder";
 

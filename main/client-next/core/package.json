@@ -1,5 +1,5 @@
 {
-  "name": "axios-annotations-next",
+  "name": "core-next",
   "version": "3.0.0",
   "description": "HTTP client library uses Axios without Typescript.",
   "main": "dist/index.js",

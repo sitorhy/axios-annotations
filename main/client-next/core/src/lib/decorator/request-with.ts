@@ -1,5 +1,5 @@
 import type Service from "../core/service";
-import {Config} from "../index";
+import Config from "../core/config";
 import {castToMetaDescriptor} from "../core/common";
 
 // 重定向方法的配置

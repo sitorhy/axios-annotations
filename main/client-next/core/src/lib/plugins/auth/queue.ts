@@ -1,6 +1,6 @@
 import type {AxiosError, AxiosStatic, InternalAxiosRequestConfig} from "axios";
 import Authorizer from "./authorizer";
-import {Config} from "../../index";
+import Config from "../../core/config";
 
 function random(min: number, max: number): number {
     return (Math.random() * (max - min + 1) | 0) + min;
