@@ -25,48 +25,36 @@ export function castToMetaDescriptor(descriptor: PropertyDescriptor): MetaProper
 /**
  * Merges multiple Axios request configurations with specific logic for Axios.
  * - `headers` and `params` are shallowly merged.
- * - `data`, `url`, `baseURL` and other top-level properties are replaced by the last provided value.
+ * - All other properties are replaced by the last provided value.
  *
  * @param sources A list of AxiosRequestConfig objects to merge.
  * @returns A new, merged AxiosRequestConfig object.
  */
 export function mergeAxiosConfigs(...sources: AxiosRequestConfig[]): AxiosRequestConfig {
+    // Start with an empty config
     const finalConfig: AxiosRequestConfig = {};
-    const finalHeaders: Record<string, any> = {};
-    const finalParams: Record<string, any> = {};
 
+    // Sequentially apply all source configs. This handles the "replacement" logic for most properties.
     for (const source of sources) {
-        if (!source) continue;
-        
-        // Destructure to handle special cases (headers, params, data, url, baseURL) separately
-        const { headers, params, data, url, baseURL, ...rest } = source;
-        
-        // Merge top-level properties. Later sources overwrite earlier ones.
-        Object.assign(finalConfig, rest);
-
-        // Accumulate and merge headers and params
-        if (headers) {
-            Object.assign(finalHeaders, headers);
-        }
-        if (params) {
-            Object.assign(finalParams, params);
-        }
-
-        // Handle 'data' replacement. If 'data' exists in the source, it overwrites.
-        if ('data' in source) {
-            finalConfig.data = data;
-        }
-        // Handle 'url' replacement.
-        if ('url' in source) {
-            finalConfig.url = url;
-        }
-        // Handle 'baseURL' replacement.
-        if ('baseURL' in source) {
-            finalConfig.baseURL = baseURL;
+        if (source) {
+            Object.assign(finalConfig, source);
         }
     }
 
-    // Assign the merged headers and params back to the final config if they are not empty
+    // Now, handle the special merge logic for 'headers' and 'params'
+    const finalHeaders = {};
+    const finalParams = {};
+
+    for (const source of sources) {
+        if (source?.headers) {
+            Object.assign(finalHeaders, source.headers);
+        }
+        if (source?.params) {
+            Object.assign(finalParams, source.params);
+        }
+    }
+
+    // Assign the merged headers and params back to the final config
     if (Object.keys(finalHeaders).length > 0) {
         finalConfig.headers = finalHeaders;
     }
