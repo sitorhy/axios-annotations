@@ -9,7 +9,7 @@ import {
     RequestHeader,
     RequestWith,
     Expect,
-    Service,
+    Service, PathVariables,
 } from "@/lib/index";
 
 const config = new Config({
@@ -30,14 +30,16 @@ const config2 = new Config({
 class WatchService extends Service {
 
     @RequestMapping("/demo.json", "POST")
-    @RequestParam("param1")
-    @RequestParam("param2")
+    @RequestParam("param1") // 基本形式
+    @RequestParam("param2") // 基本形式
+    // 扩展写法（函数）
     @RequestParam({
         key: "sum",
         value: function (source: Record<string, any>) {
             return Number(source['param1']) + Number(source['param2']);
         }
     })
+    // 扩展写法（静态值）
     @RequestParam({
         key: 'static',
         value: 'foo'
@@ -55,6 +57,7 @@ class WatchService extends Service {
         }
     })
     getJson() {
+        // http://localhost:5173/resources/demo.json?static=foo&sum=628&param2=514&param1=114
         return Expect<Record<string, any>>({
             param1: '114',
             param2: '514',
@@ -70,6 +73,8 @@ class WatchService extends Service {
         });
     }
 
+    // 测试配置重定向，注意切换配置仍然会合并服务实例 @RequestMapping 声明的前缀
+    // 需要将前缀提升到 Config 中
     @RequestWith(config2)
     @RequestMapping("/test1.json", "GET")
     @RequestConfig({
@@ -87,12 +92,40 @@ class WatchService extends Service {
         };
     })
     getData() {
+        // http://localhost:5173/data/test1.json?a=1&b=2
         return Expect<Record<string, any>>({
             params: {
                 'a': 1,
                 'b': 2
             }
         });
+    }
+
+    @RequestMapping("/{file}?a={a}", "GET")
+    @PathVariables()
+    @PathVariables('c')
+    pathVariableTest() {
+        // http://localhost:5173/resources/test2.json?a=200
+        return Expect<Record<string, any>>({
+            file: 'test2.json',
+            c: {
+                a: 200
+            }
+        });
+    }
+
+    @RequestMapping("/{file}?a={a}", "GET")
+    @PathVariables({
+        value: function () {
+            return {
+                file: 'test3.json',
+                a: 100
+            };
+        }
+    })
+    pathVariableTest2() {
+        // http://localhost:5173/resources/test3.json?a=100
+        return Expect<Record<string, any>>({});
     }
 }
 
@@ -112,6 +145,14 @@ async function test() {
     const response2 = await service.getData();
 
     console.log(response2.data);
+
+    const response3 = await service.pathVariableTest();
+
+    console.log(response3.data);
+
+    const response4 = await service.pathVariableTest2();
+
+    console.log(response4.data);
 }
 
 let initFlag = false;

@@ -1,0 +1,12 @@
+{
+  "name": "Android Studio",
+  "version": "AI-252.28238.7.2523.14688667",
+  "versionSuffix": "",
+  "buildNumber": "252.28238.7.2523.14688667",
+  "productCode": "AI",
+  "envVarBaseName": "STUDIO",
+  "dataDirectoryName": "AndroidStudio2025.2.3",
+  "svgIconPath": "bin/studio.svg",
+  "productVendor": "Google",
+  "majorVersionReleaseDate": "20000101"
+}

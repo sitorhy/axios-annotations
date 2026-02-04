@@ -1,6 +1,6 @@
 import type {AxiosRequestConfig, AxiosResponse, Method} from 'axios';
 import type Config from "./config";
-import {deepMerge, isNullOrEmpty, normalizePath} from "./common";
+import {mergeAxiosConfigs, isNullOrEmpty, normalizePath, isPlainObject, formatUrl} from "./common";
 
 export type ParamsMapper<T = any> = (params: Record<string, any>) => T;
 
@@ -10,7 +10,9 @@ export enum ParamsMappingType {
     // 查询串
     PARAM = 'PARAM',
     // 请求体
-    BODY = 'BODY'
+    BODY = 'BODY',
+    // 路径变量
+    PATH_VARIABLE = 'PATH_VARIABLE'
 }
 
 export interface ParamsMapping<T = any> {
@@ -25,6 +27,7 @@ export default class RequestBuilder {
     private _configs: (AxiosRequestConfig | AxiosConfigMapper)[] | null = null;
 
     private readonly _mapping: Map<ParamsMappingType, Map<string, ParamsMapping>> = new Map();
+    private readonly _pathVariablesMapping: ParamsMapping[] = [];
 
     private _addMapping(type: ParamsMappingType, mapping: ParamsMapping) {
         let scopeMapping = this._mapping.get(type);
@@ -33,6 +36,10 @@ export default class RequestBuilder {
             this._mapping.set(type, scopeMapping);
         }
         scopeMapping.set(mapping.key, mapping);
+    }
+
+    private _addPathVariablesMapping(mapping: ParamsMapping) {
+        this._pathVariablesMapping.push(mapping);
     }
 
     private _clearMapping(type: ParamsMappingType) {
@@ -101,6 +108,24 @@ export default class RequestBuilder {
                 throw new Error('body mapping key is required');
             }
             this._addMapping(ParamsMappingType.BODY, {
+                ...keyOrMapping,
+                required: false
+            });
+        }
+        return this;
+    }
+
+    // 路径参数集合
+    // 路径参数数据源要求可合并并且不需要指定key，单独数据集合
+    pathVariable(keyOrMapping: string | ParamsMapping): this {
+        if (typeof keyOrMapping === 'string') {
+            this._addPathVariablesMapping({
+                value: undefined,
+                key: keyOrMapping,
+                required: false // 必填参数无意义，占位符是固定的字符
+            });
+        } else {
+            this._addPathVariablesMapping({
                 ...keyOrMapping,
                 required: false
             });
@@ -229,9 +254,54 @@ export default class RequestBuilder {
             params: params
         };
         if (this._configs) {
-            mergeConfigs = deepMerge(
-                ...(this._configs.map(cfg => deepMerge(mergeConfigs, typeof cfg === 'function' ? cfg(source) : cfg)))
+            mergeConfigs = mergeAxiosConfigs(
+                ...(this._configs.map(cfg => mergeAxiosConfigs(mergeConfigs, typeof cfg === 'function' ? cfg(source) : cfg)))
             );
+        }
+
+        let pathVariables = null;
+        if (this._pathVariablesMapping.length) {
+            pathVariables = {};
+            for (const mapping of this._pathVariablesMapping) {
+                if (typeof mapping.value === 'function') {
+                    Object.assign(pathVariables, mapping.value(source));
+                } else {
+                    let value = mapping.value;
+                    if (isNullOrEmpty(value)) {
+                        if (!mapping.key) {
+                            // 如果不指定key，则使用 source 数据源本体
+                            // 所以，如果需要开启路径参数功能至少配置一个 @PathVariables()
+                            value = source;
+                        } else {
+                            value = source[mapping.key];
+                        }
+                    }
+                    if (value === undefined) {
+                        // 说明找不到
+                        value = null;
+                    } else {
+                        if (!isPlainObject(value)) {
+                            console.error('check path variables collection is plain object: ', value);
+                            value = null;
+                        }
+                    }
+                    Object.assign(pathVariables, value);
+                }
+            }
+        }
+
+        if (pathVariables) {
+            // 路径变量不为空，认为有意图使用占位符
+            const url = mergeConfigs.url;
+            if (url) {
+                // url 的声明为 String?
+                mergeConfigs.url = formatUrl(url, pathVariables);
+            }
+            const baseUrl = mergeConfigs.baseURL;
+            if (baseUrl) {
+                // 一般不会对 baseUrl 使用占位符
+                mergeConfigs.baseURL = formatUrl(baseUrl, pathVariables);
+            }
         }
 
         return mergeConfigs;

@@ -1,24 +1,25 @@
+import {ParamsMapping} from "../core/builder";
 import type Service from "../core/service";
 import {castToMetaDescriptor, isNullOrEmpty} from "../core/common";
-import {ParamsMapping} from "../core/builder";
 
-type RequestBodyParamsMapping = Omit<ParamsMapping, 'key'> & { key?: string };
+type PathVariablesParamsMapping = Omit<ParamsMapping, 'key'> & { key?: string };
 
-export default function RequestBody(keyOrMapping?: string | RequestBodyParamsMapping) {
+export default function PathVariables(keyOrMapping?: string | PathVariablesParamsMapping) {
     return function <T extends Service>(_target: T, propertyKey: string, descriptor: PropertyDescriptor) {
         const metaDescriptor = castToMetaDescriptor(descriptor);
         const builder = metaDescriptor.builder;
         if (builder) {
             if (typeof keyOrMapping === 'string' || keyOrMapping === undefined || isNullOrEmpty(keyOrMapping)) {
-                builder.body({
-                    key: typeof keyOrMapping === 'string' ? keyOrMapping : 'body',
+                builder.pathVariable({
+                    // key 为空使用数据源本体
+                    key: typeof keyOrMapping === 'string' ? keyOrMapping : '',
                     required: false,
                     value: undefined
                 });
             } else {
-                builder.body({
+                builder.pathVariable({
                     ...keyOrMapping,
-                    key: typeof keyOrMapping.key === 'string' ? keyOrMapping.key : 'body',
+                    key: typeof keyOrMapping.key === 'string' ? keyOrMapping.key : '',
                     required: false
                 });
             }

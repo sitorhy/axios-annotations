@@ -183,3 +183,8 @@ $RECYCLE.BIN/
 /main/client/release/LICENSE
 /main/client/release/*.md
 /main/client/node-test/test.js
+
+/main/client-next/release/**/*.js
+/main/client-next/release/**/*.ts
+/main/client-next/release/LICENSE
+/main/client-next/release/*.md

@@ -1,0 +1,50 @@
+{
+  "name": "axios-annotations",
+  "version": "3.0.0",
+  "description": "HTTP client library uses Axios without Typescript.",
+  "main": "index.js",
+  "module": "es/index.js",
+  "typings": "index.d.ts",
+  "miniprogram": "lib",
+  "miniprogramRoot": "lib",
+  "keywords": [
+    "axios",
+    "axios-annotations",
+    "axios-decorators"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./es/index.d.ts",
+        "default": "./es/index.js"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      }
+    },
+    "./plugins/auth": {
+      "import": {
+        "types": "./es/plugins/auth/index.d.ts",
+        "default": "./es/plugins/auth/index.js"
+      },
+      "require": {
+        "types": "./plugins/index.d.ts",
+        "default": "./plugins/index.js"
+      }
+    },
+    "./plugins/auth/*": {
+      "import": {
+        "types": "./es/plugins/auth/*.d.ts",
+        "default": "./es/plugins/auth/*.js"
+      },
+      "require": {
+        "types": "./plugins/*.d.ts",
+        "default": "./plugins/*.js"
+      }
+    }
+  },
+  "author": "sitorhy",
+  "license": "MIT",
+  "homepage": "https://github.com/sitorhy/axios-annotations#readme"
+}
