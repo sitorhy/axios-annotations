@@ -181,7 +181,6 @@ $RECYCLE.BIN/
 /main/client/release/**/*.js
 /main/client/release/**/*.ts
 /main/client/release/LICENSE
-/main/client/release/*.md
 /main/client/node-test/test.js
 
 /main/client-next/release/**/*.js
