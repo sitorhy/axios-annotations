@@ -80,6 +80,7 @@ jspm_packages/
 
 # TypeScript v1 declaration files
 typings/
+!main/client-next/wechat-mp-test/typings
 
 # TypeScript cache
 *.tsbuildinfo
@@ -120,6 +121,7 @@ typings/
 # Nuxt.js build / generate output
 .nuxt
 dist
+!main/client-next/wechat-mp-test/miniprogram/api/axios-miniprogram/dist
 debug
 
 # Gatsby files
