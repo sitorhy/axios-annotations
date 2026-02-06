@@ -1,0 +1,14 @@
+<!--index.wxml-->
+<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <view>
+      <text>origin: {{localConfig.origin}}</text>
+      <text>baseURL: {{localConfig.baseURL}}</text>
+      <text>getPackageConfig[GET]:</text>
+      <textarea value="{{packageConfigText}}" auto-height="{{true}}"/>
+      <text>getPackageGraph[POST]:</text>
+      <textarea value="{{packageGraphText}}" auto-height="{{true}}"/>
+    </view>
+  </view>
+</scroll-view>

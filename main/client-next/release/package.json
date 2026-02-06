@@ -5,8 +5,8 @@
   "main": "index.js",
   "module": "es/index.js",
   "typings": "index.d.ts",
-  "miniprogram": "lib",
-  "miniprogramRoot": "lib",
+  "miniprogram": "wechat-mp",
+  "miniprogramRoot": "wechat-mp",
   "keywords": [
     "axios",
     "axios-annotations",

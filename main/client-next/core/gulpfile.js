@@ -3,18 +3,20 @@ import gulpTypescript from "gulp-typescript";
 import swc from "gulp-swc";
 import {existsSync, mkdirSync} from "node:fs";
 import {execSync} from "node:child_process";
+import {rimrafSync} from 'rimraf';
+import rename from "gulp-rename";
 
 const polyfill = process.env.npm_config_polyfill === "true";
 
 // --- 配置 ---
 const cjsSwcOptions = {
-    module: { type: 'commonjs' },
-    env: Object.assign({ targets: "dead" }, polyfill ? { mode: "usage", coreJs: "3.39.0" } : null)
+    module: {type: 'commonjs'},
+    env: Object.assign({targets: "dead"}, polyfill ? {mode: "usage", coreJs: "3.39.0"} : null)
 };
 
 const esmSwcOptions = {
-    module: { type: 'es6' },
-    env: Object.assign({ targets: "dead" }, polyfill ? { mode: "usage", coreJs: "3.39.0" } : null)
+    module: {type: 'es6'},
+    env: Object.assign({targets: "dead"}, polyfill ? {mode: "usage", coreJs: "3.39.0"} : null)
 };
 
 const tsOptionsCjs = {
@@ -34,51 +36,61 @@ const tsOptionsEsm = {
 
 // --- 任务 ---
 
-// CJS 编译任务 (输出到 dist/)
 gulp.task("compile:cjs", function () {
     const tsResult = gulp.src("./src/**/*.ts").pipe(gulpTypescript(tsOptionsCjs));
-
-    // 编译 CJS 并输出到 dist/
-    tsResult.js
-        .pipe(swc(cjsSwcOptions))
-        .pipe(gulp.dest("./dist"));
-    
-    // 将类型声明文件输出到 dist/
+    tsResult.js.pipe(swc(cjsSwcOptions)).pipe(gulp.dest("./dist"));
     return tsResult.dts.pipe(gulp.dest("./dist"));
 });
 
-// ESM 编译任务 (输出到 dist/es/)
 gulp.task("compile:esm", function () {
     const tsResult = gulp.src("./src/**/*.ts").pipe(gulpTypescript(tsOptionsEsm));
-    tsResult.js
-        .pipe(swc(esmSwcOptions))
-        .pipe(gulp.dest("./dist/es"));
+    tsResult.js.pipe(swc(esmSwcOptions)).pipe(gulp.dest("./dist/es"));
     return tsResult.dts.pipe(gulp.dest("./dist/es"));
 });
 
-// 顶层编译任务，并行执行 CJS 和 ESM 编译
-gulp.task("compile", gulp.parallel("compile:cjs", "compile:esm", function(done) {
-    // 复制其他非 ts 文件
-    if (!existsSync("./dist")) {
-        mkdirSync("./dist");
-    }
+gulp.task("compile", gulp.parallel("compile:cjs", "compile:esm", function (done) {
+    if (!existsSync("./dist")) mkdirSync("./dist");
     gulp.src("./src/lib/core/core-expect/*").pipe(gulp.dest("./dist/lib/core/core-expect"));
     gulp.src("./src/lib/core/core-expect/*").pipe(gulp.dest("./dist/es/lib/core/core-expect"));
     done();
 }));
 
-gulp.task("deploy", async function () {
-    gulp.src("./dist/**/*").pipe(gulp.dest("../release"));
-    gulp.src("../../../README.md").pipe(gulp.dest("../release"));
-    gulp.src("../../../LICENSE").pipe(gulp.dest("../release"));
+gulp.task('wechat-mp:copy', function () {
+    return gulp.src("./dist/lib/**/*")
+        .pipe(gulp.dest("./dist/wechat-mp"));
 });
+
+gulp.task('wechat-mp:clean-expect', function (done) {
+    rimrafSync(["./dist/wechat-mp/core/core-expect"]);
+    done();
+});
+
+gulp.task('wechat-mp:rewrite-expect', function () {
+    return gulp.src("./src/lib/core/core-expect/index.cjs.js")
+        .pipe(rename("core-expect.js"))
+        .pipe(gulp.dest("./dist/wechat-mp/core"));
+});
+
+gulp.task('build-wechat-mp', gulp.series('wechat-mp:copy', 'wechat-mp:rewrite-expect', 'wechat-mp:clean-expect'));
+
+
+gulp.task('deploy:dist', function() {
+    return gulp.src("./dist/**/*")
+        .pipe(gulp.dest("../release"));
+});
+
+gulp.task('deploy:docs', function() {
+    return gulp.src(["../../../README.md", "../../../LICENSE"])
+        .pipe(gulp.dest("../release"));
+});
+gulp.task("deploy", gulp.parallel('deploy:dist', 'deploy:docs'));
+
 
 gulp.task("build", gulp.series([
     async function () {
         const currentWorkingDir = process.cwd();
-        execSync("gulp compile", {
-            cwd: currentWorkingDir,
-        });
+        execSync("gulp compile", { cwd: currentWorkingDir });
     },
-    "deploy",
+    "build-wechat-mp",
+    "deploy", // 使用新的、正确的 deploy 任务
 ]));

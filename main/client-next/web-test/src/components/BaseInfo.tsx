@@ -19,21 +19,34 @@ export default function BaseInfo() {
     }, [packageGraph]);
 
     useEffect(() => {
-        demoService.getPackageConfig().then((response) => {
+        const controller = new AbortController();
+
+        demoService.getPackageConfig({
+            signal: controller.signal
+        }).then((response) => {
             setPackageConfig(response.data);
         });
 
-        demoService.getPackageGraph().then((response) => {
+        demoService.getPackageGraph({
+            signal: controller.signal
+        }).then((response) => {
             setPackageGraph(response.data);
         });
 
-        demoService.getProductInfo().then((response) => {
+        demoService.getProductInfo({signal: controller.signal}).then((response) => {
             console.log(response.data);
         });
 
-        demoService.getFileInfo('product-info.json').then((response) => {
+        demoService.getFileInfo({
+            fileName: 'product-info.json',
+            signal: controller.signal
+        }).then((response) => {
             console.log(response.data);
         });
+
+        return function () {
+            controller.abort(controller.signal);
+        }
 
     }, []);
 

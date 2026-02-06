@@ -47,11 +47,20 @@ export class DemoService extends Service {
     })
     @RequestParam("num3", true)
     @RequestParam("num4", false)
-    getPackageConfig() {
+    @RequestConfig(function (source: Record<string, any>) {
+        if (source.signal) {
+            return {
+                signal: source.signal
+            }
+        }
+        return {};
+    })
+    getPackageConfig(params: { signal?: AbortSignal }) {
         return Expect<Record<string, any>>({
             "Custom-Header": "header-value-from-source",
             num1: 100,
-            num2: 200
+            num2: 200,
+            ...params,
         });
     }
 
@@ -62,12 +71,21 @@ export class DemoService extends Service {
     // http://localhost:5173/files/package_graph.json
     @RequestMapping("/files/package_graph.json", "POST")
     @RequestBody()
-    getPackageGraph() {
+    @RequestConfig(function (source: Record<string, any>) {
+        if (source.signal) {
+            return {
+                signal: source.signal
+            }
+        }
+        return {};
+    })
+    getPackageGraph(params: { signal?: AbortSignal }) {
         return Expect<Record<string, any>>({
             body: {
                 version: '3.x',
                 description: '示例数据'
-            }
+            },
+            ...params
         });
     }
 
@@ -90,8 +108,18 @@ export class DemoService extends Service {
             };
         }
     })
-    getProductInfo() {
-        return Expect<Record<string, any>>({});
+    @RequestConfig(function (source: Record<string, any>) {
+        if (source.signal) {
+            return {
+                signal: source.signal
+            }
+        }
+        return {};
+    })
+    getProductInfo(params: { signal?: AbortSignal }) {
+        return Expect<Record<string, any>>({
+            ...params
+        });
     }
 
 
@@ -112,9 +140,20 @@ export class DemoService extends Service {
         key: 'b',
         value: 200
     })
-    getFileInfo(fileName: string) {
+    @RequestConfig(function (source: Record<string, any>) {
+        if (source.signal) {
+            return {
+                signal: source.signal
+            }
+        }
+        return {};
+    })
+    getFileInfo(params: {
+        fileName: string;
+        signal?: AbortSignal
+    }) {
         return Expect<Record<string, any>>({
-            fileName,
+            ...params,
             d: 400,
             pathVariablesKey: {
                 e: 500
