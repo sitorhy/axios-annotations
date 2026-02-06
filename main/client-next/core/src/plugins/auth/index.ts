@@ -4,5 +4,6 @@
 export {
     Authorizer,
     SessionStorage,
-    default as AuthorizationPlugin
+    default as AuthorizationPlugin,
+    BasicSession,
 } from "../../lib/plugins/auth/index";

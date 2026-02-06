@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports["default"] = Expect;
-function Expect(params) {
+exports["default"] = IndexCjs;
+function IndexCjs(params) {
     return params;
 }

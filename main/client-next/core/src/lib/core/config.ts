@@ -1,5 +1,5 @@
+import type {AxiosInstance, AxiosStatic} from 'axios';
 import AxiosStaticInstanceProvider from "./provider";
-import type {AxiosInstance, AxiosStatic} from "axios";
 
 export type ConfigPlugin = (axios: AxiosInstance, config: Config) => void;
 export type PartialConstructorString = string | null;

@@ -2,21 +2,10 @@
   "name": "core-expect",
   "version": "1.0.0",
   "description": "仅用于仿冒使用装饰器的方法返回值，绕过IDE/Typescript的类型检查，获得代码提示功能。",
-  "main": "./expect.js",
-  "module": "./expect.es.js",
+  "main": "index.cjs.js",
+  "module": "index.esm.js",
   "author": "",
   "license": "MIT",
   "type": "commonjs",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./expect.d.ts",
-        "default": "./expect.es.js"
-      },
-      "require": {
-        "types": "./expect.d.ts",
-        "default": "./expect.js"
-      }
-    }
-  }
+  "types": "index.d.ts"
 }

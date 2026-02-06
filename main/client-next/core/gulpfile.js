@@ -28,7 +28,7 @@ const tsOptionsCjs = {
 
 const tsOptionsEsm = {
     ...tsOptionsCjs,
-    target: "es6",
+    target: "es5",
     module: "esnext",
 };
 

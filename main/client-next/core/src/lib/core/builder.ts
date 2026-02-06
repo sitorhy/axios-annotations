@@ -1,6 +1,7 @@
-import type {AxiosRequestConfig, AxiosResponse, Method} from 'axios';
+import type {AxiosResponse, Method} from 'axios';
 import type Config from "./config";
 import {mergeAxiosConfigs, isNullOrEmpty, normalizePath, isPlainObject, formatUrl} from "./common";
+import {AxiosRequestConfig} from "axios";
 
 export type ParamsMapper<T = any> = (params: Record<string, any>) => T;
 

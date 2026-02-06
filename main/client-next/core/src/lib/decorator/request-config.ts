@@ -1,4 +1,4 @@
-import {AxiosRequestConfig} from "axios";
+import type {AxiosRequestConfig} from 'axios';
 import Config from "../core/config";
 import type Service from "../core/service";
 import {castToMetaDescriptor} from "../core/common";
@@ -11,12 +11,17 @@ export default function RequestConfig<T = ConfigType>(config: T): Decorator<T> {
     if (config instanceof Config) {
         // --- Class Decorator Logic ---
         return function <T extends { new(...args: any[]): Service }>(constructor: T) {
-            return class extends constructor {
-                constructor(..._args: any[]) {
-                    super(..._args);
-                    this.config = config as Config;
-                }
+            const target = constructor.prototype;
+            if (config) {
+                Object.defineProperty(target, '__config', {
+                    value: config,
+                    enumerable: false,
+                    configurable: true,
+                    writable: false,
+                });
             }
+
+            return constructor;
         } as Decorator<T>;
     } else {
         // --- Method Decorator Logic ---

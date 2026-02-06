@@ -1,11 +1,12 @@
 import {isNullOrEmpty} from "../../core/common";
+import {BasicSession} from "./index";
 
 /**
  * 缓存过期会话，判断请求是否过期
  */
 export default class SessionHistory {
     // store up to 10 sessions, include expired or not
-    _history: (Record<string, any> | null)[] = new Array(10);
+    _history: (BasicSession | null)[] = new Array(10);
     // next session storage location
     _position: number = 0;
     _size: number = 0;
@@ -15,7 +16,9 @@ export default class SessionHistory {
     }
 
     // store primary keys for session
-    add(session: Record<string, any>): void {
+    // 缓存 session 历史，这里只是添加并未作废，防止同时存在多个有效 session，这里允许存放有效 session
+    // 使用 invalid 作为标记
+    add(session: BasicSession): void {
         if (Object.keys(session).every(i => isNullOrEmpty(session[i]))) {
             return;
         }
@@ -42,7 +45,7 @@ export default class SessionHistory {
     }
 
     // mark the session expired
-    deprecate(session: Record<string, any>): void {
+    deprecate(session: BasicSession): void {
         let position = 0;
         const {refresh_token, refreshToken} = session;
         const matching = this._history.find((s, i) => {
@@ -72,7 +75,7 @@ export default class SessionHistory {
     }
 
     // is the session expired
-    isDeprecated(session: Record<string, any>): boolean {
+    isDeprecated(session: BasicSession): boolean {
         return this._history.some(s => {
             if (s) {
                 const {refresh_token, refreshToken} = session;

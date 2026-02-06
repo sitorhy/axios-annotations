@@ -1,11 +1,20 @@
+import type {AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig} from 'axios';
 import PendingQueue from "./queue";
 import Authorizer from "./authorizer";
 import Config from "../../core/config";
 import type {ConfigPlugin} from "../../core/config";
-import type {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
 export {default as Authorizer} from "./authorizer";
 export {default as SessionStorage} from "./storage";
+
+export type BasicSession = {
+    access_token?: string;
+    accessToken?: string;
+    token?: string;
+
+    refreshToken?: string;
+    refresh_token?: string;
+} & Record<string, any>;
 
 export default function AuthorizationPlugin(
     authorizer: Authorizer,
@@ -17,7 +26,7 @@ export default function AuthorizationPlugin(
 ): ConfigPlugin {
     return function (axios: AxiosInstance, config: Config) {
         let unauthorized: boolean = false;
-        let expiredSession: Record<string, any> | null = null;
+        let expiredSession: BasicSession | null = null;
         const queue = new PendingQueue(
             authorizer,
             config,
@@ -29,7 +38,7 @@ export default function AuthorizationPlugin(
         axios.interceptors.response.use(i => {
             if (expiredSession) {
                 // Previously requests sent have been rejected, record and release it (will be resending)
-                // 会话过期加入过期队列，但未确认 refreshToken 时候失效
+                // 会话过期加入过期队列，但未确认 refreshToken 是否失效
                 authorizer.sessionHistory.add(expiredSession);
                 expiredSession = null;
             }
@@ -55,6 +64,7 @@ export default function AuthorizationPlugin(
                             throw e;
                         } finally {
                             unauthorized = false;
+                            // 全部 reject 掉, 即抛出原始异常
                             queue.clear();
                         }
                     }
@@ -74,8 +84,8 @@ export default function AuthorizationPlugin(
                             await authorizer.storageSession(await authorizer.refreshSession(session));
                         } catch (e2) {
                             // invalid refresh_token
-                            // 此处触发一般就是 refreshSession 刷新返回 401 / 500 等，非标准返回值需要自定义异常处理
-                            // 作废 refreshToken
+                            // 此处触发一般就是 refreshSession 刷新返回 401 / 500 等，非标准返回值需要自行抛出异常
+                            // 作废会话，一般就是 refreshToken 失效
                             authorizer.sessionHistory.deprecate(session);
                             try {
                                 await authorizer.onAuthorizedDenied(e2);
@@ -85,6 +95,7 @@ export default function AuthorizationPlugin(
                             } finally {
                                 unauthorized = false;
                                 // cancel all requests resending.
+                                // clear 就是 全部 reject 掉
                                 queue.clear();
                             }
                         }

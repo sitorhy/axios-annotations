@@ -1,4 +1,4 @@
-import type {Method} from "axios";
+import type {Method} from 'axios';
 import type Service from "../core/service";
 import {castToMetaDescriptor, normalizePath} from "../core/common";
 
@@ -15,17 +15,24 @@ export default function RequestMapping(path: string, method?: Method): any {
     if (method === undefined) {
         // Class Decorator logic remains the same
         return function <T extends { new(...args: any[]): Service }>(constructor: T) {
-            return class extends constructor {
-                constructor(..._args: any[]) {
-                    super();
-                    this.path = path || '';
-                }
+            // 这里不用继承 extends constructor, 无法转换到 ES5
+            // 获取原型对象
+            const target = constructor.prototype;
+            if (path) {
+                Object.defineProperty(target, '__path', {
+                    value: path,
+                    enumerable: false,
+                    configurable: true,
+                    writable: false,
+                });
             }
+            return constructor;
         }
     } else {
         // Method Decorator logic
         return function <T extends Service>(target: T, propertyKey: string, descriptor: PropertyDescriptor) {
             // 在原型链上标记方法被替换，在 RequestConfig 中会重新绑定 this 指针。
+            // target 是类的原型对象
             if (!Object.prototype.hasOwnProperty.call(target, '__decoratedMethods')) {
                 Object.defineProperty(target, '__decoratedMethods', {
                     value: [],
