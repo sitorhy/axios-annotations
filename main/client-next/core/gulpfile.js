@@ -5,10 +5,11 @@ import {existsSync, mkdirSync} from "node:fs";
 import {execSync} from "node:child_process";
 import {rimrafSync} from 'rimraf';
 import rename from "gulp-rename";
+import gulpIf from 'gulp-if';
+import replace from 'gulp-replace';
 
 const polyfill = process.env.npm_config_polyfill === "true";
 
-// --- 配置 ---
 const cjsSwcOptions = {
     module: {type: 'commonjs'},
     env: Object.assign({targets: "dead"}, polyfill ? {mode: "usage", coreJs: "3.39.0"} : null)
@@ -30,30 +31,65 @@ const tsOptionsCjs = {
 
 const tsOptionsEsm = {
     ...tsOptionsCjs,
-    target: "es5",
     module: "esnext",
 };
 
 // --- 任务 ---
 
+// 1. 在源文件路径中排除 expect.ts
+const sourceFiles = ["./src/**/*.ts", "!./src/lib/core/core-expect/expect.ts"];
+
 gulp.task("compile:cjs", function () {
-    const tsResult = gulp.src("./src/**/*.ts").pipe(gulpTypescript(tsOptionsCjs));
+    const tsResult = gulp.src(sourceFiles, { base: './src' })
+        .pipe(gulpTypescript(tsOptionsCjs));
+
     tsResult.js.pipe(swc(cjsSwcOptions)).pipe(gulp.dest("./dist"));
     return tsResult.dts.pipe(gulp.dest("./dist"));
 });
 
+const IMPORT_REGEX = /from\s+['"](\.\.?\/[^'"]+)(?<!\.(js|json|vue|ts))['"]/g;
+
 gulp.task("compile:esm", function () {
-    const tsResult = gulp.src("./src/**/*.ts").pipe(gulpTypescript(tsOptionsEsm));
-    tsResult.js.pipe(swc(esmSwcOptions)).pipe(gulp.dest("./dist/es"));
-    return tsResult.dts.pipe(gulp.dest("./dist/es"));
+    // 同样排除 expect.ts
+    const tsResult = gulp.src("./src/lib/**/*.ts", { base: './src/lib', ignore: './src/lib/core/core-expect/expect.ts' })
+        .pipe(gulpTypescript(tsOptionsEsm));
+
+    const jsStream = tsResult.js
+        .pipe(swc(esmSwcOptions))
+        .pipe(gulpIf(file => file.path.endsWith('.js'), replace(IMPORT_REGEX, 'from "$1.js"')))
+        .pipe(gulp.dest("./dist/es"));
+
+    tsResult.dts.pipe(gulp.dest("./dist/es"));
+
+    return jsStream;
 });
 
-gulp.task("compile", gulp.parallel("compile:cjs", "compile:esm", function (done) {
-    if (!existsSync("./dist")) mkdirSync("./dist");
-    gulp.src("./src/lib/core/core-expect/*").pipe(gulp.dest("./dist/lib/core/core-expect"));
-    gulp.src("./src/lib/core/core-expect/*").pipe(gulp.dest("./dist/es/lib/core/core-expect"));
+// 2. 创建一个专门处理 expect 文件的任务
+gulp.task("compile:expect", function(done) {
+    // CJS 版本
+    gulp.src("./src/lib/core/core-expect/index.cjs.js")
+        .pipe(rename("core-expect.js"))
+        .pipe(gulp.dest("./dist/lib/core"));
+
+    // ESM 版本
+    gulp.src("./src/lib/core/core-expect/index.esm.js") // 假设 ESM 也使用 CJS 版本
+        .pipe(rename("core-expect.js"))
+        .pipe(gulp.dest("./dist/es/core"));
     done();
-}));
+});
+
+// 3. 更新顶层编译任务
+gulp.task("compile", gulp.parallel(
+    "compile:cjs", 
+    "compile:esm", 
+    "compile:expect", // 加入新任务
+    function (done) {
+        if (!existsSync("./dist")) mkdirSync("./dist");
+        done();
+    }
+));
+
+// ... (The rest of your gulpfile remains the same)
 
 gulp.task('wechat-mp:copy', function () {
     return gulp.src("./dist/lib/**/*")
@@ -85,12 +121,11 @@ gulp.task('deploy:docs', function() {
 });
 gulp.task("deploy", gulp.parallel('deploy:dist', 'deploy:docs'));
 
-
 gulp.task("build", gulp.series([
     async function () {
         const currentWorkingDir = process.cwd();
         execSync("gulp compile", { cwd: currentWorkingDir });
     },
     "build-wechat-mp",
-    "deploy", // 使用新的、正确的 deploy 任务
+    "deploy",
 ]));

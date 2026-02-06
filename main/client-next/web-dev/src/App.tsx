@@ -9,8 +9,10 @@ import {
     RequestHeader,
     RequestWith,
     Expect,
-    Service, PathVariables,
+    Service,
+    PathVariables,
 } from "@/lib/index";
+import RequestBuilder from "@/lib/core/builder.ts";
 
 const config = new Config({
     protocol: "http",
@@ -153,6 +155,19 @@ async function test() {
     const response4 = await service.pathVariableTest2();
 
     console.log(response4.data);
+
+    // 底层用法
+    console.log('底层用法');
+    const response5 = await new RequestBuilder().param({
+        key: 'param',
+        value: function (source: Record<string, any>) {
+            return source.param;
+        }
+    }).buildWith(config, "/demo.json", "GET", {
+        param: 666
+    });
+
+    console.log(response5.data);
 }
 
 let initFlag = false;

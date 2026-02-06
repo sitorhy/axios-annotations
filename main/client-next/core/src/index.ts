@@ -13,5 +13,6 @@ export {
     RequestParam,
     PathVariables,
     RequestWith,
+    RequestBuilder,
 } from "./lib/index";
 

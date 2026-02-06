@@ -12,3 +12,4 @@ export {default as RequestBody} from "./decorator/request-body";
 export {default as RequestHeader} from "./decorator/request-header";
 export {default as RequestWith} from "./decorator/request-with";
 export {default as PathVariables} from "./decorator/path-variables";
+export {default as RequestBuilder} from "./core/builder";

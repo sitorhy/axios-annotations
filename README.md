@@ -492,7 +492,107 @@ export default function Expect<T, D = AxiosPromise<T>>(params: any): D;
 
 - 如果接口返回纯文本，你应该使用 `Expect<string>(...)`。
 
+
+## 不支持装饰器的环境
+```ts
+import {RequestBuilder} from "axios-annotations";
+import {config} from './config';
+
+async function foo() {
+  const response = await new RequestBuilder().param({
+    key: 'param',
+    value: function (source: Record<string, any>) {
+      return source.param;
+    }
+  }).buildWith(config, "/demo.json", "GET", {
+    param: 666
+  });
+
+  console.log(response.data);
+}
+```
+
+## 运行环境
+
+### 微信小程序配置
+
+更新开发工具以支持装饰器语法。
+
+小程序`Typescript`环境不支持装饰器编译，但是`Javascript`环境可以。把涉及到`API`配置的`*.ts`文件扩展名改为`*.js`，绕过蹩脚的`TS`编译，本地配置勾选上`将JS编译成ES5`，正常引入即可。<br/>
+
+> 开发工具BUG：`TS`环境`npm`构建失败
+>
+> 找到`project.config.json`文件，`setting`下面添加如下配置：
+>
+> ```json
+> {
+>     "packNpmManually": true,
+>     "packNpmRelationList": [
+>       {
+>         "packageJsonPath": "./package.json",
+>         "miniprogramNpmDistDir": "./miniprogram/"
+>       }
+>     ]
+> }
+> ```
+>
+> 开发工具`项目`→`重新打开此项目`，然后构建`npm`。
+
+**安装第三方`axios`实现：**
+
++ 备胎1，使用适配器，`axios-miniprogram-adapter`
+
+  `axios`需要降级，版本再高就得报错：
+
+  ```shell
+  npm install axios@0.26.1
+  npm install axios-miniprogram-adapter
+  ```
+
+  开发工具如果编译报错 `module is not defined`， 在`app.js`头部补充缺失组件的声明：
+
+  ```javascript
+  import {
+      Config,
+      Service,
+      Expect,
+      AxiosStaticInstanceProvider,
+      RequestBody,
+      RequestConfig,
+      RequestHeader,
+      RequestMapping,
+      RequestParam,
+      PathVariables,
+      RequestWith,
+      RequestBuilder
+  } from "axios-annotations";
+  ```
++ 备胎2，使用第三方实现，不限于`axios-miniprogram`
+
+  ```shell
+  npm install axios-miniprogram
+  ```
+  如果`npm`构建失败直接将`node_modules`下的目录复制出来。
+  实现`AxiosStaticInstanceProvider`并配置，如果`IDE`警告`provide`返回类型，可忽略掉：
+
+  ```javascript
+  import mpAxios from 'axios-miniprogram';
   
+  class ThirdAxiosStaticInstanceProvider extends AxiosStaticInstanceProvider {
+      provide() {
+          return mpAxios;
+      }
+  }
+  
+  const config = new Config({
+      plugins: [],
+      protocol: "http",
+      host: "localhost",
+      port: 8888,
+      prefix: "/test",
+      axiosProvider: new ThirdAxiosStaticInstanceProvider(),
+  });
+  ```
 
 
 # 插件
@@ -534,10 +634,12 @@ new Config({
     ]
 })
 ```
-## 授权插件
+## 授权插件 (可选)
 使用该插件用于自动为请求写入授权信息（自动携带`Bearer Token`请求头等），默认适配`OAuth2`标准，直接给出示例：
 + 定义会话存储器
 ```ts
+import {SessionStorage} from "axios-annotations/plugins/auth";
+
 class WebSessionStorage extends SessionStorage {
   async set(key: string, value: any): Promise<void> {
     return sessionStorage.setItem(key, JSON.stringify(value));
@@ -560,6 +662,8 @@ class WebSessionStorage extends SessionStorage {
 + 实例化并导出`Authorizer`对象，并注入`SessionStorage`
 > 这里导出的`Authorizer`对象将用于首次登录后会话信息写入（调用`storageSession`）和获取会话（`getSession`）。
 ```ts
+import {Authorizer, type BasicSession} from "axios-annotations/plugins/auth";
+
 class LocalAuthorizer extends Authorizer {
   constructor() {
     super();
@@ -607,6 +711,8 @@ export const authorizer = new LocalAuthorizer();
 授权链的接口应该跟业务链的接口分别独立`Service`，防止请求头冲突。
 `OAuthService`示例代码适配`spring-boot-starter-oauth2-authorization-server 4.0.x`，仅供参考，看不懂可直接跳到`Authorizer`说明。
 ```ts
+import AuthorizationPlugin, {type BasicSession} from "axios-annotations/plugins/auth";
+
 const oauthConfig = new Config({
   protocol: 'http',
   host: 'localhost',

@@ -2,16 +2,30 @@
   "name": "axios-annotations",
   "version": "3.0.0",
   "description": "HTTP client library uses Axios without Typescript.",
-  "main": "index.js",
-  "module": "es/index.js",
-  "typings": "index.d.ts",
-  "miniprogram": "wechat-mp",
-  "miniprogramRoot": "wechat-mp",
+  "author": "sitorhy",
+  "license": "MIT",
+  "homepage": "https://github.com/sitorhy/axios-annotations#readme",
   "keywords": [
     "axios",
     "axios-annotations",
     "axios-decorators"
   ],
+
+  "type": "module",
+
+  "main": "./lib/index.js",
+  "module": "./es/index.js",
+  "types": "./lib/index.d.ts",
+
+  "miniprogram": "wechat-mp",
+  "miniprogramRoot": "wechat-mp",
+
+  "files": [
+    "lib",
+    "es",
+    "wechat-mp"
+  ],
+
   "exports": {
     ".": {
       "import": {
@@ -29,22 +43,9 @@
         "default": "./es/plugins/auth/index.js"
       },
       "require": {
-        "types": "./plugins/index.d.ts",
-        "default": "./plugins/index.js"
-      }
-    },
-    "./plugins/auth/*": {
-      "import": {
-        "types": "./es/plugins/auth/*.d.ts",
-        "default": "./es/plugins/auth/*.js"
-      },
-      "require": {
-        "types": "./plugins/*.d.ts",
-        "default": "./plugins/*.js"
+        "types": "./lib/plugins/auth/index.d.ts",
+        "default": "./lib/plugins/auth/index.js"
       }
     }
-  },
-  "author": "sitorhy",
-  "license": "MIT",
-  "homepage": "https://github.com/sitorhy/axios-annotations#readme"
+  }
 }

@@ -1,5 +1,5 @@
 import {RequestConfig, RequestMapping, Service, Expect, Config} from "axios-annotations";
-import {Authorizer, SessionStorage, AuthorizationPlugin, type BasicSession} from "axios-annotations/plugins/auth";
+import AuthorizationPlugin, {Authorizer, SessionStorage, type BasicSession} from "axios-annotations/plugins/auth";
 import type {InternalAxiosRequestConfig} from "axios";
 
 //// 以下是鉴权插件配置
