@@ -1,6 +1,15 @@
-# Axios Annotations 
-version <kbd>3.0</kbd>
-> Quick Configuration Framework without Typescript using axios.
+# axios-annotations
+
+<p align="left">
+  <a href="./README_EN.md">English</a> | <b>简体中文</b>
+</p>
+
+[![npm version](https://img.shields.io/npm/v/axios-annotations.svg?style=flat-square)](https://www.npmjs.com/package/axios-annotations)
+[![license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/sitorhy/axios-annotations/blob/master/LICENSE)
+
+---
+Quick Configuration Framework for Axios with TypeScript support.
+
 > 声明式`API`配置工具。将 **请求的构建声明** 与 **业务数据的提供** 完全分离。不再手动拼装 `URL`
 、请求头和请求体，而是通过装饰器来“声明”一个请求应该如何被构建。
 
@@ -12,8 +21,8 @@ version <kbd>3.0</kbd>
 | `@RequestMapping` | 类 / 方法 | 定义 `URL` 路径和 `HTTP` 请求方法。 |
 | `@RequestWith`    | 方法     | 重定向请求方法使用的配置。             |
 | `@RequestBody`    | 方法     | 标记一个参数作为请求体。              |
-| `@RequestHeader`  | 方法     | 标记一个参数作为请求头发送。            |
-| `@RequestParam`   | 方法     | 标记一个参数作为 `URL` 查询参数发送。    |
+| `@RequestHeader`  | 方法     | 标记一个参数作为请求头。              |
+| `@RequestParam`   | 方法     | 标记一个参数作为 `URL` 查询参数。      |
 | `@PathVariables`  | 方法     | 标记一个参数作为 `URL` 路径变量。      |
 
 ---
@@ -375,7 +384,7 @@ export class FileService extends Service {
 
 路径参数可用于查询参数的填充，但跟 `@RequestParam` 有区别：
 
-+ `@RequestParam` 合并值直接传给 `axios` 的 `params` 参数，对于数组等符合类型，使用 `axios` 的生成逻辑，路径参数则直接转为
++ `@RequestParam` 合并值直接传给 `axios` 的 `params` 参数，对于数组等复合类型，使用 `axios` 的生成逻辑，路径参数则直接转为
   `JSON` 字符串，所以不要传非基本类型。
 + 占位符是固定的字符序列，路径参数没有选填逻辑。
 + 转换非基本类型失败一律转为 `"undefined"`。
@@ -485,7 +494,7 @@ export default function Expect<T, D = AxiosPromise<T>>(params: any): D;
 ```
 
 由于 `TypeScript` 的限制，装饰器无法在编译时改变一个方法的返回类型。方法在代码层面返回的是一个普通对象（数据源），但框架在运行时实际返回的是一个`AxiosPromise`。
-`Expect<T>` 的作用就是解决这个“类型不匹配”的问题。它是一个类型桥梁，绕过类型检查，从而让你在调用代码时能够获得完整的类型安全和`IDE` 代码提示。
+`Expect<T>` 的作用就是解决这个“类型不匹配”的问题。它是一个类型桥梁，通过类型断言绕过静态检查，从而让你在调用代码时能够获得完整的类型安全和`IDE` 代码提示。
 `Expect<T>` 的泛型 `T` 至关重要，它 **定义了你期望服务器响应体 `data` 的类型**。
 
 - 如果接口返回一个具体的 `JSON` 对象，你应该为其定义一个接口 `MyData` 并使用 `Expect<MyData>(...)`。
@@ -518,7 +527,7 @@ async function foo() {
 
 更新开发工具以支持装饰器语法。
 
-小程序`Typescript`环境不支持装饰器编译，但是`Javascript`环境可以。把涉及到`API`配置的`*.ts`文件扩展名改为`*.js`，绕过蹩脚的`TS`编译，本地配置勾选上`将JS编译成ES5`，正常引入即可。<br/>
+小程序`Typescript`环境不支持装饰器编译，但是`Javascript`环境可以。把涉及到`API`配置的`*.ts`文件扩展名改为`*.js`，绕过部分环境对装饰器支持限制，本地配置勾选上`将JS编译成ES5`，正常引入即可。<br/>
 
 > 开发工具BUG：`TS`环境`npm`构建失败
 >
@@ -540,7 +549,7 @@ async function foo() {
 
 **安装第三方`axios`实现：**
 
-+ 备胎1，使用适配器，`axios-miniprogram-adapter`
++ 方案 1，使用适配器，`axios-miniprogram-adapter`
 
   `axios`需要降级，版本再高就得报错：
 
@@ -567,7 +576,7 @@ async function foo() {
       RequestBuilder
   } from "axios-annotations";
   ```
-+ 备胎2，使用第三方实现，不限于`axios-miniprogram`
++ 方案 2，使用第三方实现，不限于`axios-miniprogram`
 
   ```shell
   npm install axios-miniprogram
@@ -899,7 +908,7 @@ export type BasicSession = {
 + onAuthorizedDenied(error: unknown): Promise<void>
 > 处理 `refreshSession` 运行时异常（HTTP 401/500/RuntimeError），通常就是`refreshToken`过期需要重新登录。
 > 重载该方法执行清理工作，默认实现直接 `rethrow` 异常，你的控制台会始终报错误信息。
-> 该方法应始终重载，并坚决调用 `invalidateSession` 删除会话信息。
+> 该方法应始终重载，务必调用 `invalidateSession` 删除会话信息。
 + refreshSession(session: BasicSession): Promise<BasicSession | null>
 > 该方法应始终重载，参数是当前会话信息，根据`session.refreshToken`换取新的`accessToken`，返回新会话对象（`PlainObject`），插件会自动持久化。
 > 如果是非标准的授权流程（不支持续期，无`refreshToken`等）直接返回`null`即可，并调用`invalidateSession`移除会话信息。或者直接抛出自定义异常走`onAuthorizedDenied`清理流程。
@@ -911,7 +920,7 @@ export type BasicSession = {
 > 1. 传给`checkSession`进行会话信息和请求的匹配，因为当前会话信息已过期，应当返回`false`表示校验不通过，返回 `true` 直接抛出原始异常，跳过续期流程。
 > 2. `checkSession`返回`false`将调用`refreshSession`，并传入当前带有`refreshToken`的会话对象作为参数。
 + checkSession(request: InternalAxiosRequestConfig, session: BasicSession): boolean
-> 默认实现为提取`withAuthentication`写入请求头的`accessToken`与当前过期会话信息的`accessToken`匹配，相等返回`false`。
+> 默认实现为提取 `authorizer.withAuthentication` 写入请求头的`accessToken`与当前过期会话信息的`accessToken`匹配，相等返回`false`。
 + withAuthentication(request: InternalAxiosRequestConfig, session: BasicSession): void
 > 拦截请求注入会话信息，默认实现为将`accessToken`写入请求头`Authorization: Bearer ${accessToken}`。
 > 如果`refreshSession`返回`null`，那么插件正常重载的情况下`getSession`会返回`null`，会话对象为空`withAuthentication`不会执行请求头写入。
@@ -946,7 +955,7 @@ graph TD
     
     CheckHistory -- "是 (已作废)" --> Denied[authorizer.onAuthorizedDenied<br/>跳转登录页/清理会话]
     
-    CheckHistory -- "否" --> CheckSessionMatch{当前 Session 与<br/>请求 Session 是否一致?}
+    CheckHistory -- "否" --> CheckSessionMatch{checkSession 当前 Session 与<br/>请求 Session 是否一致?}
     
     %% 避免重复刷新
     CheckSessionMatch -- "不一致 (已被他人刷新)" --> PopQueue[直接开始消耗队列重发]

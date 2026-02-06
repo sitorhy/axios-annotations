@@ -116,7 +116,7 @@ gulp.task('deploy:dist', function() {
 });
 
 gulp.task('deploy:docs', function() {
-    return gulp.src(["../../../README.md", "../../../LICENSE"])
+    return gulp.src(["../../../README.md", "../../../README_EN.md", "../../../LICENSE"])
         .pipe(gulp.dest("../release"));
 });
 gulp.task("deploy", gulp.parallel('deploy:dist', 'deploy:docs'));
