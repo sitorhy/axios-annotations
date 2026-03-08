@@ -1,16 +1,4 @@
 // app.ts
-import {
-  Config,
-  Service,
-  RequestBody,
-  RequestConfig,
-  RequestHeader,
-  RequestMapping,
-  RequestParam,
-  RequestWith
-} from "axios-annotations";
-
-
 App<IAppOption>({
   globalData: {},
   onLaunch() {

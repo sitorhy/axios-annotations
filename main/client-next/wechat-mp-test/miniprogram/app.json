@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/logs/logs",
-    "pages/basic-info/index"
+    "pages/basic-info/index",
+    "pages/not-found/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",
