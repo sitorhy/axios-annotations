@@ -183,6 +183,14 @@ function App() {
     return (
         <div>
             <p>Web Dev Mode</p>
+            <button onClick={()=> {
+                const service = new WatchService();
+                service.getJson().then((data) => {
+                    console.log(data.data);
+                }).catch(function (e) {
+                    console.error(e);
+                });
+            }}>动态实例绑定</button>
         </div>
     )
 }

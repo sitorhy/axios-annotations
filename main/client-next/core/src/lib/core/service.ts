@@ -26,7 +26,8 @@ export default class Service {
         }
 
         Reflect.deleteProperty(target, '__path');
-        Reflect.deleteProperty(target, '__config');
+        // fix: 第二次构建新实例会丢失配置
+        // Reflect.deleteProperty(target, '__config');
         Reflect.deleteProperty(target, '__decoratedMethods');
     }
 }
