@@ -78,15 +78,28 @@ gulp.task("compile:expect", function(done) {
     done();
 });
 
-// 3. 更新顶层编译任务
-gulp.task("compile", gulp.parallel(
-    "compile:cjs", 
-    "compile:esm", 
-    "compile:expect", // 加入新任务
-    function (done) {
-        if (!existsSync("./dist")) mkdirSync("./dist");
-        done();
-    }
+// 2.1 用 core-expect 手写声明覆盖编译产物中的 expect.d.ts，
+// 避免其引用不存在的 ./core-expect 类型文件导致 IDE 无法识别类型
+gulp.task("compile:expect:types", function () {
+    return gulp.src("./src/lib/core/core-expect/index.d.ts")
+        .pipe(rename("expect.d.ts"))
+        .pipe(gulp.dest("./dist/lib/core"))
+        .pipe(gulp.dest("./dist/es/core"))
+        .pipe(gulp.dest("./dist/wechat-mp/core"));
+});
+
+// 3. 更新顶层编译任务：先并行编译，再用 index.d.ts 覆盖 expect.d.ts
+gulp.task("compile", gulp.series(
+    gulp.parallel(
+        "compile:cjs",
+        "compile:esm",
+        "compile:expect", // 加入新任务
+        function (done) {
+            if (!existsSync("./dist")) mkdirSync("./dist");
+            done();
+        }
+    ),
+    "compile:expect:types"
 ));
 
 // ... (The rest of your gulpfile remains the same)

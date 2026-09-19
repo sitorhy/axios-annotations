@@ -1,3 +1,9 @@
 packages:
   - main/client/*
   - main/client-next/*
+allowBuilds:
+  '@swc/core': false
+  core-js: false
+  esbuild: false
+  history: false
+  react-router: false
